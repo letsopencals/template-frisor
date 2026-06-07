@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 1280" fill="none">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&amp;display=swap');
+      .wordmark { font-family: 'Fraunces', 'Playfair Display', Georgia, serif; font-size: 240px; font-weight: 600; letter-spacing: -0.025em; }
+    </style>
+  </defs>
+  <text x="640" y="720" text-anchor="middle" class="wordmark"><tspan fill="#EFE7D6">Frisor</tspan><tspan fill="#BE8342">.</tspan></text>
+</svg>

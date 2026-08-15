@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frisor — Social Banner</title>
+<!--
+  Renders a branded social/preview banner from the iPhone screenshot.
+  Save the iPhone-lineup screenshot in THIS folder as `banner-phones.png` first,
+  then open this file in a browser and export the .banner element (1600×892).
+  All text sits in the top band — it never overlaps the phones.
+-->
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0F1B17; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+  .banner {
+    width: 1600px; height: 892px; position: relative; overflow: hidden;
+    background-image: url('banner-phones.png');
+    background-size: cover; background-position: center 58%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+  /* Top scrim — darkens the mirror/ceiling band for legible text, fades out well above the phones */
+  .scrim-top {
+    position: absolute; top: 0; left: 0; right: 0; height: 300px;
+    background: linear-gradient(180deg, rgba(15,27,23,0.92) 0%, rgba(15,27,23,0.78) 38%, rgba(15,27,23,0.30) 72%, rgba(15,27,23,0) 100%);
+  }
+  /* Subtle bottom scrim for the corner caption (sits over the wood table, not the phones) */
+  .scrim-bottom {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 150px;
+    background: linear-gradient(0deg, rgba(15,27,23,0.78) 0%, rgba(15,27,23,0) 100%);
+  }
+  .top {
+    position: absolute; top: 44px; left: 64px; right: 64px;
+    display: flex; align-items: flex-start; justify-content: space-between;
+  }
+  .brand { max-width: 880px; }
+  .wordmark {
+    font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+    font-size: 40px; font-weight: 700; letter-spacing: 0.02em; color: #EFE9DA;
+    display: inline-flex; align-items: baseline;
+  }
+  .wordmark .dot { color: #E8B547; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px; margin-top: 16px;
+    background: rgba(232,181,71,0.14); border: 1px solid rgba(232,181,71,0.4);
+    border-radius: 100px; padding: 6px 15px;
+  }
+  .pill-dot { width: 6px; height: 6px; border-radius: 50%; background: #E8B547; }
+  .pill-text { font-size: 14px; font-weight: 600; letter-spacing: 0.06em; color: #f0cb78; text-transform: uppercase; }
+  .headline {
+    font-family: 'Fraunces', Georgia, serif; font-size: 50px; font-weight: 700;
+    line-height: 1.06; letter-spacing: -0.01em; color: #EFE9DA; margin-top: 18px; max-width: 760px;
+  }
+  .headline span { color: #E8B547; font-style: italic; }
+  .sub { font-size: 19px; color: rgba(239,233,218,0.75); margin-top: 14px; max-width: 620px; line-height: 1.5; }
+  .built {
+    display: flex; align-items: center; gap: 11px;
+    color: rgba(239,233,218,0.78); font-size: 15px; font-weight: 500; letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  .built .o {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: rgba(99,102,241,0.32); border: 1px solid rgba(99,102,241,0.55);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 700; color: #a5b4fc;
+  }
+  .built b { color: #EFE9DA; font-weight: 600; }
+  .caption {
+    position: absolute; bottom: 40px; left: 64px;
+    font-size: 15px; letter-spacing: 0.04em; color: rgba(239,233,218,0.62); font-weight: 500;
+  }
+  .caption b { color: #E8B547; font-weight: 600; }
+  .badge-free {
+    position: absolute; bottom: 38px; right: 64px;
+    font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: #0F1B17; background: #E8B547; border-radius: 100px; padding: 8px 18px;
+  }
+</style>
+</head>
+<body>
+<div class="banner">
+  <div class="scrim-top"></div>
+  <div class="scrim-bottom"></div>
+
+  <div class="top">
+    <div class="brand">
+      <div class="wordmark">Frisor<span class="dot">.</span></div>
+      <div class="pill"><span class="pill-dot"></span><span class="pill-text">Open-source template</span></div>
+      <div class="headline">The modern <span>barbershop</span><br>booking template</div>
+      <div class="sub">A real Next.js booking site — services, add-ons, Stripe checkout, customer accounts — you deploy in three steps.</div>
+    </div>
+    <div class="built">
+      <span>Built on</span><svg height="24px" viewBox="0 0 1137 232" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 34.02C0 15.23 15.23 0 34.02 0H197.31C216.1 0 231.33 15.23 231.33 34.02V197.31C231.33 216.1 216.1 231.33 197.31 231.33H34.02C15.23 231.33 0 216.1 0 197.31" fill="url(#paint0_linear_1352_38)"/>
+        <path d="M181.07 30.4062H50.2502C39.2928 30.4062 30.4102 39.2889 30.4102 50.2463V181.066C30.4102 192.024 39.2928 200.906 50.2502 200.906H181.07C192.027 200.906 200.91 192.024 200.91 181.066V50.2463C200.91 39.2889 192.027 30.4062 181.07 30.4062Z" fill="white"/>
+        <path d="M181.29 194.159H50.4805C39.6805 193.989 30.8605 185.709 30.6405 175.299C30.6405 155.369 31.6805 135.119 30.5405 115.209C29.4605 96.3292 21.0205 80.7592 14.6005 63.1092C11.9305 52.3392 23.3705 45.4792 33.2005 45.5792H198.07C207.92 45.4792 219.32 52.3492 216.75 63.1192C210.52 80.7692 202.27 96.3892 201.23 115.219C200.13 135.129 201.14 155.359 201.14 175.299C200.92 185.699 192.09 193.979 181.3 194.159H181.29Z" fill="white"/>
+        <path d="M181.3 200.908H50.4805C39.6805 200.728 30.8605 192.108 30.6405 181.278C30.6405 160.528 31.6805 139.448 30.5405 118.718C29.4605 99.0576 21.0205 82.8476 14.6005 64.4776C11.9305 53.2676 23.3705 46.1276 33.2005 46.2276H198.07C207.92 46.1276 219.32 53.2776 216.75 64.4876C210.52 82.8576 202.27 99.1276 201.23 118.728C200.13 139.458 201.14 160.518 201.14 181.278C200.92 192.108 192.09 200.728 181.3 200.908Z" fill="white"/>
+        <path d="M181.29 200.908H50.4805C39.6805 200.728 30.8605 192.108 30.6405 181.278C30.6405 160.528 31.6805 139.448 30.5405 118.718C29.4605 99.0576 21.0205 82.8476 14.6005 64.4776C11.9305 53.2676 23.3705 46.1276 33.2005 46.2276H198.07C207.92 46.1276 219.32 53.2776 216.75 64.4876C210.52 82.8576 202.27 99.1276 201.23 118.728C200.13 139.458 201.14 160.518 201.14 181.278C200.92 192.108 192.09 200.728 181.3 200.908H181.29Z" fill="url(#paint1_linear_1352_38)"/>
+        <path d="M115.66 157.478C104.69 157.478 95.5495 153.858 88.2395 146.608C80.9195 139.358 77.2695 130.448 77.2695 119.868C77.2695 109.288 80.9195 100.378 88.2395 93.1278C95.5495 85.8778 104.69 82.2578 115.66 82.2578C126.63 82.2578 135.77 85.8778 143.08 93.1278C150.39 100.378 154.05 109.288 154.05 119.868C154.05 130.448 150.39 138.938 143.08 146.508C135.77 153.818 126.63 157.478 115.66 157.478ZM115.66 143.768C122.32 143.768 127.83 141.548 132.21 137.108C136.58 132.668 138.77 126.918 138.77 119.868C138.77 112.818 136.58 107.068 132.21 102.628C127.83 98.1878 122.32 95.9678 115.66 95.9678C109 95.9678 103.52 98.1878 99.2095 102.628C94.8995 107.068 92.7495 112.818 92.7495 119.868C92.7495 126.918 94.8995 132.598 99.2095 136.908C103.52 141.478 109 143.768 115.66 143.768Z" fill="url(#paint2_linear_1352_38)"/>
+        <path d="M363.387 149.534C372.417 149.534 379.854 146.524 385.697 140.502C391.717 134.481 394.727 126.688 394.727 117.125C394.727 107.562 391.717 99.7694 385.697 93.748C379.854 87.7267 372.417 84.716 363.387 84.716C354.357 84.716 346.92 87.7267 341.077 93.748C335.234 99.7694 332.312 107.562 332.312 117.125C332.312 126.688 335.234 134.392 341.077 140.237C346.92 146.435 354.357 149.534 363.387 149.534ZM363.387 168.13C348.514 168.13 336.119 163.259 326.203 153.519C316.288 143.601 311.33 131.47 311.33 117.125C311.33 102.78 316.288 90.7374 326.203 80.9969C336.119 71.0793 348.514 66.1206 363.387 66.1206C378.26 66.1206 390.655 71.0793 400.57 80.9969C410.486 90.7374 415.444 102.78 415.444 117.125C415.444 130.939 410.486 142.982 400.57 153.253C390.655 163.171 378.26 168.13 363.387 168.13Z" fill="white"/>
+        <path d="M540.177 116.594C540.177 131.47 535.573 143.779 526.366 153.519C517.159 163.259 506.181 168.13 493.432 168.13C480.86 168.13 469.617 162.64 459.701 151.659V202.664H438.985V67.7144H459.701V84.9816C468.023 72.4076 478.736 66.1206 491.838 66.1206C505.472 66.1206 516.893 70.8137 526.1 80.1999C535.485 89.5862 540.177 101.718 540.177 116.594ZM488.651 149.534C497.15 149.534 504.321 146.524 510.165 140.502C516.185 134.304 519.195 126.511 519.195 117.125C519.195 107.739 516.185 99.9465 510.165 93.748C504.321 87.5496 497.239 84.4503 488.917 84.4503C480.595 84.4503 473.601 87.6381 467.935 94.0137C462.269 100.212 459.436 107.916 459.436 117.125C459.436 126.511 462.269 134.304 467.935 140.502C473.601 146.524 480.506 149.534 488.651 149.534Z" fill="white"/>
+        <path d="M655.67 126.157H578.116C578.647 133.241 581.923 138.997 587.943 143.424C593.963 147.852 600.957 150.066 608.925 150.066C621.496 150.066 630.881 146.169 637.078 138.377L649.03 151.394C638.406 162.551 624.506 168.13 607.331 168.13C593.166 168.13 581.303 163.437 571.741 154.05C562.18 144.664 557.399 132.267 557.399 116.859C557.399 101.806 562.268 89.5862 572.007 80.1999C581.745 70.8137 593.52 66.1206 607.331 66.1206C621.142 66.1206 632.651 70.2824 641.859 78.606C651.066 86.9297 655.67 97.9984 655.67 111.812V126.157ZM634.953 109.687C634.953 101.717 632.386 95.4305 627.251 90.8259C622.293 86.2213 615.83 83.919 607.862 83.919C599.895 83.919 592.9 86.3099 586.88 91.0915C581.037 95.8732 578.116 102.072 578.116 109.687H634.953Z" fill="white"/>
+        <path d="M699.467 166.536H678.75V67.7144H699.467V85.5129C702.831 79.4915 707.434 74.7984 713.278 71.4335C719.298 67.8915 725.672 66.1206 732.401 66.1206C743.91 66.1206 753.028 69.574 759.757 76.4809C766.485 83.3877 769.85 93.2167 769.85 105.968V166.536H748.867V112.343C748.867 94.1022 741.342 84.9816 726.292 84.9816C718.678 84.9816 712.304 87.461 707.169 92.4198C702.034 97.2015 699.467 104.02 699.467 112.875V166.536Z" fill="white"/>
+        <path d="M792.119 117.125C792.119 102.249 797.254 90.0289 807.523 80.4656C817.793 70.9022 830.453 66.1206 845.503 66.1206C860.377 66.1206 872.948 71.2564 883.218 81.5282L871.001 96.6702C862.502 89.232 853.914 85.5129 845.238 85.5129C836.385 85.5129 828.771 88.4351 822.397 94.2793C816.199 99.9465 813.101 107.296 813.101 116.328C813.101 125.537 816.199 133.33 822.397 139.705C828.771 145.904 836.562 149.003 845.769 149.003C854.976 149.003 863.741 144.841 872.063 136.517L884.28 149.8C871.709 162.02 857.809 168.13 842.582 168.13C828.417 168.13 816.465 163.437 806.726 154.05C796.988 144.487 792.119 132.179 792.119 117.125Z" fill="white"/>
+        <path d="M985.629 166.536H966.771V153.253C958.449 163.171 947.471 168.13 933.837 168.13C923.391 168.13 914.803 165.208 908.075 159.363C901.523 153.342 898.248 145.55 898.248 135.986C898.248 126.423 901.789 119.162 908.871 114.203C915.954 109.244 925.693 106.765 938.087 106.765H965.178V103.046C965.178 89.9404 957.83 83.3877 943.133 83.3877C933.926 83.3877 924.365 86.7526 914.449 93.4824L905.153 80.4656C917.371 70.9022 931.004 66.1206 946.055 66.1206C958.272 66.1206 967.922 69.2198 975.005 75.4183C982.087 81.4396 985.629 90.5602 985.629 102.78V166.536ZM964.912 121.376H941.54C926.489 121.376 918.964 126.069 918.964 135.455C918.964 140.237 920.823 143.956 924.542 146.612C928.26 149.092 933.483 150.331 940.212 150.331C947.117 150.331 952.96 148.472 957.741 144.753C962.522 140.856 964.912 135.809 964.912 129.611V121.376Z" fill="white"/>
+        <path d="M1035.59 166.536H1014.87V28.6641H1035.59V166.536Z" fill="white"/>
+        <path d="M1099.94 168.13C1084.01 168.13 1069.67 163.171 1056.92 153.253L1067.01 137.049C1078.34 145.727 1089.5 150.066 1100.47 150.066C1105.08 150.066 1108.71 149.003 1111.36 146.878C1114.2 144.576 1115.61 141.742 1115.61 138.377C1115.61 133.418 1109.06 128.991 1095.96 125.095C1095.61 124.917 1095.16 124.74 1094.63 124.563C1094.28 124.386 1094.01 124.298 1093.83 124.298C1073.3 118.808 1063.03 109.51 1063.03 96.4045C1063.03 87.1954 1066.48 79.8457 1073.38 74.3557C1080.47 68.8656 1089.76 66.1206 1101.27 66.1206C1112.6 66.1206 1123.4 69.4854 1133.67 76.2152L1125.97 91.6228C1118 86.3099 1109.24 83.6534 1099.68 83.6534C1088.52 83.6534 1082.95 87.1954 1082.95 94.2793C1082.95 97.29 1084.01 99.5038 1086.13 100.921C1088.43 102.16 1092.15 103.4 1097.29 104.64C1105.08 106.765 1111.63 108.89 1116.94 111.015C1120.48 112.609 1123.58 114.292 1126.24 116.063C1132.97 120.667 1136.33 127.663 1136.33 137.049C1136.33 146.258 1132.88 153.785 1125.97 159.629C1119.24 165.296 1110.57 168.13 1099.94 168.13Z" fill="white"/>
+        <defs>
+            <linearGradient id="paint0_linear_1352_38" x1="115.66" y1="231.32" x2="115.66" y2="-0.00999655" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#1F2021"/>
+                <stop offset="1" stop-color="#2D2D2F"/>
+            </linearGradient>
+            <linearGradient id="paint1_linear_1352_38" x1="115.66" y1="200.908" x2="115.66" y2="46.2176" gradientUnits="userSpaceOnUse">
+                <stop offset="0.45" stop-color="white"/>
+                <stop offset="0.54" stop-color="#FCFCFB" stop-opacity="0.99"/>
+                <stop offset="0.61" stop-color="#F3F2F1" stop-opacity="0.96"/>
+                <stop offset="0.68" stop-color="#E4E2E0" stop-opacity="0.9"/>
+                <stop offset="0.74" stop-color="#CECCC7" stop-opacity="0.83"/>
+                <stop offset="0.8" stop-color="#B3AFA8" stop-opacity="0.73"/>
+                <stop offset="0.86" stop-color="#918C81" stop-opacity="0.61"/>
+                <stop offset="0.91" stop-color="#696254" stop-opacity="0.46"/>
+                <stop offset="0.97" stop-color="#3C3320" stop-opacity="0.3"/>
+                <stop offset="1" stop-color="#201600" stop-opacity="0.2"/>
+            </linearGradient>
+            <linearGradient id="paint2_linear_1352_38" x1="115.66" y1="157.478" x2="115.66" y2="82.2578" gradientUnits="userSpaceOnUse">
+                <stop offset="0.23" stop-color="#2D2D2F"/>
+                <stop offset="0.97"/>
+            </linearGradient>
+        </defs>
+    </svg>
+
+    </div>
+  </div>
+
+  <div class="caption">Live demo · <b>template-frisor-sage.vercel.app</b></div>
+  <div class="badge-free">Free · MIT</div>
+</div>
+</body>
+</html>

@@ -4,7 +4,7 @@ A production-ready booking website for modern barbershops. Built with **Next.js 
 
 **[View Live Demo →](https://template-frisor-sage.vercel.app)**
 
-![Frisor — the booking flow on mobile, end to end](docs/banner-phones.png)
+![Frisor — the booking flow on mobile, end to end](docs/cover.png)
 
 Dark editorial palette (deep green + gold), mobile-first booking flow inspired by native apps, and a full storefront — services, appointments, checkout, customer accounts — wired up out of the box. MIT licensed: clone it, rebrand it, ship it.
 

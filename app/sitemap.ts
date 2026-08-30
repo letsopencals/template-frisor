@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import type { Product } from '@opencals/storefront-sdk';
+import type { ProductListItemResponse, ProductListVariant } from '@opencals/storefront-sdk';
 import '@/lib/opencals';
 import { ProductService } from '@opencals/storefront-sdk';
 import { siteConfig } from '@/lib/site-config';
@@ -16,11 +16,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
 	try {
 		const { data: response } = await ProductService.list({ query: { take: 50 } });
-		const products = response?.data as Product[];
+		const products: ProductListItemResponse[] = response?.data ?? [];
 		const productRoutes: MetadataRoute.Sitemap = products
-		.flatMap((p: Product) => p.variants as Product[])
-		.map((p) => ({
-			url: `${base}/booking/${p.slug}`,
+		.flatMap((p) => p.variants ?? [])
+		.map((variant: ProductListVariant) => ({
+			url: `${base}/booking/${variant.slug}`,
 			lastModified: new Date(),
 			changeFrequency: 'weekly' as const,
 			priority: 0.8,

@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import type { Cart } from '@opencals/storefront-sdk';
+import type { CartResponse as Cart } from '@opencals/storefront-sdk';
 
 const CART_ID_KEY = '@opencals/cart';
 

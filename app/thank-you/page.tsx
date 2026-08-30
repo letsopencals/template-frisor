@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { formatPrice } from '@/lib/format';
 import { useDateFormatter } from '@/hooks/use-date-formatter';
-import type { Order, OrderLineItem, OrderTransaction } from '@opencals/storefront-sdk';
+import type { OrderDetailResponse as Order, OrderDetailLineItem as OrderLineItem, OrderDetailTransaction as OrderTransaction } from '@opencals/storefront-sdk';
 
 export default function ThankYouPage() {
 	return (
@@ -51,7 +51,9 @@ function ThankYouContent() {
 	}, [orderId]);
 
 	const { formatCustom, formatDate } = useDateFormatter();
-	const appointments = order?.appointments ?? [];
+	const appointments = (order?.lineItems ?? [])
+		.map((li) => li.appointment)
+		.filter((a): a is NonNullable<typeof a> => a != null);
 	const lineItems: OrderLineItem[] = order?.lineItems ?? [];
 	const currency = order?.paymentCurrencyCode ?? 'USD';
 	const transactions = order?.transactions;

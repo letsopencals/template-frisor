@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { useSession } from 'next-auth/react';
 import type {
-	CheckoutQuestion,
+	CheckoutQuestionResponse as CheckoutQuestion,
 	CheckoutStartResponse,
 	CurrentAvailabilitySlot,
 	CustomerProviderCatalogItem,
@@ -72,11 +72,13 @@ export function useBookingFlow(slug: string) {
 		}
 	}, [session]);
 
-	// Fetch payment providers once
+	// Fetch payment providers. Cart-aware, so refetch once the cart exists (committed) — a fully
+	// discounted / sub-minimum cart comes back as a single `no_payment_required` provider.
 	useEffect(() => {
+		const useId = committedCartId ?? cartId;
 		(async () => {
 			try {
-				const res = await fetch('/api/payment/providers');
+				const res = await fetch('/api/payment/providers', useId ? { headers: { 'X-Cart-Id': useId } } : undefined);
 				if (res.ok) {
 					const data = await res.json();
 					setProviders(Array.isArray(data) ? data : []);
@@ -85,7 +87,7 @@ export function useBookingFlow(slug: string) {
 				// non-fatal
 			}
 		})();
-	}, []);
+	}, [committedCartId, cartId]);
 
 	// Fetch questions once product known
 	useEffect(() => {
@@ -358,7 +360,9 @@ export function useBookingFlow(slug: string) {
 				const data: CheckoutStartResponse = await res.json();
 				setPaymentData(data);
 
-				if (providerName === 'cash') {
+				// Immediate confirm for the no-collection cases: cash pays on arrival; no_payment_required
+				// (the amount-aware fallback) is fully covered — either way there's no card step.
+				if (providerName === 'cash' || (data.provider as string) === 'no_payment_required') {
 					await handleSubmitCheckout();
 					return;
 				}

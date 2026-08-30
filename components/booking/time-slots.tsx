@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import type { CurrentAvailabilitySlot, StaffMember } from '@opencals/storefront-sdk';
+import type { CurrentAvailabilitySlot, ProductListVariantStaffMember as StaffMember } from '@opencals/storefront-sdk';
 
 interface TimeSlotsProps {
 	slots: CurrentAvailabilitySlot[];

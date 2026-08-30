@@ -1,6 +1,6 @@
 'use client';
 
-import type { Location } from '@opencals/storefront-sdk';
+import type { ProductListVariantLocation as Location } from '@opencals/storefront-sdk';
 
 interface LocationSelectorProps {
 	locations: Location[];

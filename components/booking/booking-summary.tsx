@@ -1,12 +1,12 @@
 'use client';
 
-import type { AddOn, CurrentAvailabilitySlot, Location, Product, StaffMember } from '@opencals/storefront-sdk';
+import type { AddOnListItemResponse as AddOn, CurrentAvailabilitySlot, ProductListVariantLocation as Location, ProductListItemResponse as Product, ProductListVariant, ProductListVariantStaffMember as StaffMember } from '@opencals/storefront-sdk';
 import { computeAddOnLineTotal, formatDuration, formatPrice } from '@/lib/format';
 import type { BookingStep } from '@/lib/booking-constants';
 
 interface BookingSummaryProps {
 	product: Product;
-	activeVariant: Product | null;
+	activeVariant: ProductListVariant | null;
 	variantLabel: string | null;
 	staff: StaffMember | null;
 	location: Location | null;

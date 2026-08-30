@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import Link from 'next/link';
-import type { Product } from '@opencals/storefront-sdk';
+import type { ProductListItemResponse as Product } from '@opencals/storefront-sdk';
 import { formatDuration, formatPrice, getProductImage } from '@/lib/format';
 import { useLocation } from '@/contexts/location-context';
 import { useSettings } from '@/contexts/settings-context';
@@ -16,7 +16,7 @@ function ServiceCard({ product, index }: { product: Product; index: number }) {
 	const variants = product.variants ?? [];
 	const imageUrl = getProductImage(variants[0]);
 	const hasMultipleVariants = variants.length > 1;
-	const primary = variants[0] ?? product;
+	const primary = variants[0] ?? null;
 
 	return (
 		<motion.div
@@ -98,13 +98,13 @@ function ServiceCard({ product, index }: { product: Product; index: number }) {
 								<svg className="h-4 w-4 text-[var(--color-gold)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
 									<path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
 								</svg>
-								{formatDuration(primary.duration)}
+								{formatDuration(primary?.duration ?? product.duration)}
 							</div>
 							<div className="flex items-center gap-2 text-[var(--color-cream-muted)]">
 								<svg className="h-4 w-4 text-[var(--color-gold)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
 									<path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.66 0-3 .9-3 2s1.34 2 3 2 3 .9 3 2-1.34 2-3 2m0-8c1.11 0 2.08.4 2.6 1m-2.6-1V6m0 12v-2m0 0c-1.11 0-2.08-.4-2.6-1m-3.4 1a9 9 0 1116 0" />
 								</svg>
-								<span className="font-semibold text-[var(--color-gold)]">{formatPrice(primary.price, currency)}</span>
+								<span className="font-semibold text-[var(--color-gold)]">{formatPrice(primary?.price ?? product.price, currency)}</span>
 							</div>
 							{product.maxAttendees > 1 && (
 								<div className="flex items-center gap-2 text-[var(--color-cream-muted)]">
@@ -116,14 +116,14 @@ function ServiceCard({ product, index }: { product: Product; index: number }) {
 							)}
 						</div>
 
-						{primary.staffMembers && primary.staffMembers.length > 0 && (
+						{primary?.staffMembers && primary.staffMembers.length > 0 && (
 							<div className="mt-6">
 								<StaffAvatars staffMembers={primary.staffMembers} maxVisible={5} size="md" />
 							</div>
 						)}
 
 						<Link
-							href={`/booking/${primary.slug}`}
+							href={`/booking/${primary?.slug ?? product.slug}`}
 							className="group mt-7 inline-flex items-center gap-3 rounded-full bg-[var(--color-gold)] px-7 py-3.5 text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-[var(--color-bg)] transition-all hover:bg-[var(--color-gold-bright)]"
 						>
 							Book Now

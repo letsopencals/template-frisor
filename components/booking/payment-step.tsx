@@ -26,8 +26,12 @@ export function PaymentStep({
 	onStripeError,
 	onSubmitCash,
 }: PaymentStepProps) {
-	const showStripe = provider === 'stripe' && paymentData?.clientSecret;
-	const showCash = provider === 'cash' && paymentData;
+	// Branch on the RESPONSE provider for the fallback: when nothing is collectible the backend
+	// overrides the requested provider with "no payment required" (cast: the pinned SDK's union
+	// predates it). clientSecret is null in that case, so showStripe/showCash won't match.
+	const showNoPayment = (paymentData?.provider as string) === 'no_payment_required';
+	const showStripe = !showNoPayment && provider === 'stripe' && paymentData?.clientSecret;
+	const showCash = !showNoPayment && provider === 'cash' && paymentData;
 
 	return (
 		<div className="space-y-6">
@@ -105,6 +109,28 @@ export function PaymentStep({
 					onError={onStripeError}
 					disabled={isExpired}
 				/>
+			)}
+
+			{showNoPayment && (
+				<div className="overflow-hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)]">
+					<div className="border-b border-[var(--color-line)] bg-[var(--color-bg-deep)] px-5 py-4">
+						<p className="text-[0.6rem] font-semibold uppercase tracking-[0.28em] text-[var(--color-copper)]">
+							No Payment Required
+						</p>
+					</div>
+					<div className="space-y-5 px-5 py-5 text-center">
+						<p className="text-sm text-[var(--color-cream-muted)]">
+							No payment is required — your booking is fully covered. Confirm to complete it.
+						</p>
+						<button
+							onClick={onSubmitCash}
+							disabled={submitting || isExpired}
+							className="flex w-full items-center justify-center gap-3 rounded-full bg-[var(--color-copper)] px-8 py-4 text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-[var(--color-bg-deep)] transition-all hover:bg-[var(--color-copper-bright)] disabled:cursor-not-allowed disabled:opacity-40"
+						>
+							{submitting ? 'Confirming…' : 'Confirm Booking'}
+						</button>
+					</div>
+				</div>
 			)}
 
 			{showCash && (

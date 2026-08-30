@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { formatPrice } from '@/lib/format';
 import { useDateFormatter } from '@/hooks/use-date-formatter';
-import type { Order, CollectionMeta, OrderLineItem } from '@opencals/storefront-sdk';
+import type { OrderListItemResponse as Order, CollectionMeta, OrderListLineItem as OrderLineItem } from '@opencals/storefront-sdk';
 
 // The SDK Order type is missing `id` but it's returned by the API
 type OrderWithId = Order & { id: string };

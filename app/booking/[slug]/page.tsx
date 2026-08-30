@@ -454,7 +454,7 @@ function QuestionsForm({
 	valid,
 	onContinue,
 }: {
-	questions: import('@opencals/storefront-sdk').CheckoutQuestion[];
+	questions: import('@opencals/storefront-sdk').CheckoutQuestionResponse[];
 	answers: Record<string, string>;
 	setAnswers: React.Dispatch<React.SetStateAction<Record<string, string>>>;
 	valid: boolean;

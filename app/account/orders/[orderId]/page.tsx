@@ -154,7 +154,7 @@ export default function OrderDetailPage() {
 													)}
 												</div>
 												<p className="text-sm font-medium text-[var(--color-cream)]">
-													{formatPrice(item.total, currency)}
+													{formatPrice(item.discountedTotal, currency)}
 												</p>
 											</div>
 											{addOnLineItems.length > 0 && (
@@ -165,7 +165,7 @@ export default function OrderDetailPage() {
 																{aoli.addOn?.title ?? 'Add-on'} × {aoli.quantity}
 															</span>
 															<span className="font-medium text-[var(--color-cream)]">
-																{formatPrice(aoli.discountedUnitPrice * aoli.quantity, currency)}
+																{formatPrice(aoli.discountedSubtotal, currency)}
 															</span>
 														</div>
 													))}

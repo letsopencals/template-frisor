@@ -3,6 +3,8 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { siteConfig } from '@/lib/site-config';
+import { Button } from '@/components/ui/button';
+import { Input, Textarea } from '@/components/ui/input';
 
 const contactFields = [
 	{
@@ -134,9 +136,9 @@ export default function ContactPage() {
 										<label className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-cream)]">
 											First Name
 										</label>
-										<input
+										<Input
 											type="text"
-											className="mt-2 w-full rounded-md border border-[var(--color-line)] bg-[var(--color-bg)] px-4 py-3 text-sm text-[var(--color-cream)] outline-none transition-colors placeholder:text-[var(--color-cream-dim)] focus:border-[var(--color-gold)]"
+											className="mt-2"
 											placeholder="Jane"
 										/>
 									</div>
@@ -144,9 +146,9 @@ export default function ContactPage() {
 										<label className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-cream)]">
 											Last Name
 										</label>
-										<input
+										<Input
 											type="text"
-											className="mt-2 w-full rounded-md border border-[var(--color-line)] bg-[var(--color-bg)] px-4 py-3 text-sm text-[var(--color-cream)] outline-none transition-colors placeholder:text-[var(--color-cream-dim)] focus:border-[var(--color-gold)]"
+											className="mt-2"
 											placeholder="Doe"
 										/>
 									</div>
@@ -155,9 +157,9 @@ export default function ContactPage() {
 									<label className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-cream)]">
 										Email
 									</label>
-									<input
+									<Input
 										type="email"
-										className="mt-2 w-full rounded-md border border-[var(--color-line)] bg-[var(--color-bg)] px-4 py-3 text-sm text-[var(--color-cream)] outline-none transition-colors placeholder:text-[var(--color-cream-dim)] focus:border-[var(--color-gold)]"
+										className="mt-2"
 										placeholder="jane@example.com"
 									/>
 								</div>
@@ -165,9 +167,9 @@ export default function ContactPage() {
 									<label className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-cream)]">
 										Phone
 									</label>
-									<input
+									<Input
 										type="tel"
-										className="mt-2 w-full rounded-md border border-[var(--color-line)] bg-[var(--color-bg)] px-4 py-3 text-sm text-[var(--color-cream)] outline-none transition-colors placeholder:text-[var(--color-cream-dim)] focus:border-[var(--color-gold)]"
+										className="mt-2"
 										placeholder="+1 (212) 555-0000"
 									/>
 								</div>
@@ -175,18 +177,15 @@ export default function ContactPage() {
 									<label className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-cream)]">
 										Message
 									</label>
-									<textarea
+									<Textarea
 										rows={4}
-										className="mt-2 w-full resize-none rounded-md border border-[var(--color-line)] bg-[var(--color-bg)] px-4 py-3 text-sm text-[var(--color-cream)] outline-none transition-colors placeholder:text-[var(--color-cream-dim)] focus:border-[var(--color-gold)]"
+										className="mt-2 resize-none"
 										placeholder="Tell us what's on your mind…"
 									/>
 								</div>
-								<button
-									type="submit"
-									className="w-full rounded-full bg-[var(--color-gold)] px-8 py-4 text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-[var(--color-bg)] transition-all hover:bg-[var(--color-gold-bright)]"
-								>
+								<Button type="submit" variant="primary" size="lg" fullWidth>
 									Send Message
-								</button>
+								</Button>
 							</form>
 						</motion.div>
 					</div>

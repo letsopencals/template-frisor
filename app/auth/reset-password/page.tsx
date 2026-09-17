@@ -8,6 +8,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { resetPasswordSchema, type ResetPasswordFormValues } from '@/lib/schemas';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useFormSubmit } from '@/hooks/use-form-submit';
 import { siteConfig } from '@/lib/site-config';
 
@@ -99,12 +101,7 @@ function ResetPasswordContent() {
 										<FormItem>
 											<FormLabel className="mb-0 text-xs font-medium normal-case tracking-normal text-[var(--color-cream-muted)]">New Password</FormLabel>
 											<FormControl>
-												<input
-													{...field}
-													type="password"
-													placeholder="Min. 6 characters"
-													className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-bg)] px-4 py-3 text-sm text-[var(--color-cream)] outline-none transition-colors placeholder:text-[var(--color-cream-dim)] focus:border-[var(--color-gold)]"
-												/>
+												<Input {...field} type="password" placeholder="Min. 6 characters" />
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -117,25 +114,16 @@ function ResetPasswordContent() {
 										<FormItem>
 											<FormLabel className="mb-0 text-xs font-medium normal-case tracking-normal text-[var(--color-cream-muted)]">Confirm Password</FormLabel>
 											<FormControl>
-												<input
-													{...field}
-													type="password"
-													placeholder="Confirm your password"
-													className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-bg)] px-4 py-3 text-sm text-[var(--color-cream)] outline-none transition-colors placeholder:text-[var(--color-cream-dim)] focus:border-[var(--color-gold)]"
-												/>
+												<Input {...field} type="password" placeholder="Confirm your password" />
 											</FormControl>
 											<FormMessage />
 										</FormItem>
 									)}
 								/>
 
-								<button
-									type="submit"
-									disabled={isSubmitting}
-									className="w-full bg-[var(--color-gold)] px-8 py-4 text-xs font-semibold uppercase tracking-[0.2em] text-white transition-all hover:bg-[var(--color-gold-bright)] disabled:opacity-50"
-								>
+								<Button type="submit" variant="primary" size="lg" fullWidth disabled={isSubmitting}>
 									{isSubmitting ? 'Resetting...' : 'Reset Password'}
-								</button>
+								</Button>
 							</form>
 						</Form>
 					</>

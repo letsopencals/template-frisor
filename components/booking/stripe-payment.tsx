@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { type Appearance, type StripeError, loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
+import { Button } from '@/components/ui/button';
 
 const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? '';
 
@@ -106,10 +107,13 @@ function StripePaymentForm({
 			</div>
 			<div className="space-y-5 px-5 py-5">
 				<PaymentElement options={{ layout: 'tabs' }} />
-				<button
+				<Button
 					onClick={handlePay}
 					disabled={!stripe || !elements || processing || disabled}
-					className="flex w-full items-center justify-center gap-3 rounded-full bg-[var(--color-copper)] px-8 py-4 text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-[var(--color-bg-deep)] transition-all hover:bg-[var(--color-copper-bright)] disabled:cursor-not-allowed disabled:opacity-40"
+					variant="accent"
+					size="lg"
+					fullWidth
+					className="gap-3"
 				>
 					{processing ? (
 						<>
@@ -131,7 +135,7 @@ function StripePaymentForm({
 							</svg>
 						</>
 					)}
-				</button>
+				</Button>
 			</div>
 		</div>
 	);

@@ -5,7 +5,13 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { formatPrice } from '@/lib/format';
 import { useDateFormatter } from '@/hooks/use-date-formatter';
-import type { OrderDetailResponse as Order, OrderDetailLineItem as OrderLineItem, AppointmentStatusType } from '@opencals/storefront-sdk';
+import type { OrderDetailResponse as Order, OrderDetailLineItem as OrderLineItem } from '@opencals/storefront-sdk';
+import {
+	AppointmentStatusBadge,
+	PaymentStatusBadge,
+	FulfillmentStatusBadge,
+	RefundStatusBadge,
+} from '@/components/ui/status-badge';
 
 export default function OrderDetailPage() {
 	const { orderId } = useParams<{ orderId: string }>();
@@ -237,59 +243,3 @@ export default function OrderDetailPage() {
 	);
 }
 
-function PaymentStatusBadge({ status }: { status: Order['paymentStatus'] }) {
-	const config: Record<string, { bg: string; text: string; label: string }> = {
-		paid: { bg: 'bg-emerald-500/15', text: 'text-emerald-400', label: 'Paid' },
-		unpaid: { bg: 'bg-amber-100', text: 'text-amber-300', label: 'Unpaid' },
-		'partially-paid': { bg: 'bg-amber-100', text: 'text-amber-300', label: 'Partially Paid' },
-	};
-	const c = config[status] ?? { bg: 'bg-charcoal/10', text: 'text-[var(--color-cream)]', label: status };
-	return (
-		<span className={`inline-block rounded px-2 py-0.5 text-[10px] font-semibold uppercase ${c.bg} ${c.text}`}>
-			{c.label}
-		</span>
-	);
-}
-
-function FulfillmentStatusBadge({ status }: { status: Order['fulfillmentStatus'] }) {
-	const config: Record<string, { bg: string; text: string; label: string }> = {
-		fulfilled: { bg: 'bg-emerald-500/15', text: 'text-emerald-400', label: 'Fulfilled' },
-		unfulfilled: { bg: 'bg-charcoal/10', text: 'text-[var(--color-cream)]', label: 'Unfulfilled' },
-		'partially-fulfilled': { bg: 'bg-amber-100', text: 'text-amber-300', label: 'Partially Fulfilled' },
-	};
-	const c = config[status] ?? { bg: 'bg-charcoal/10', text: 'text-[var(--color-cream)]', label: status };
-	return (
-		<span className={`inline-block rounded px-2 py-0.5 text-[10px] font-semibold uppercase ${c.bg} ${c.text}`}>
-			{c.label}
-		</span>
-	);
-}
-
-function RefundStatusBadge({ status }: { status: Order['refundStatus'] }) {
-	const config: Record<string, { bg: string; text: string; label: string }> = {
-		'refund-owed': { bg: 'bg-red-100', text: 'text-red-300', label: 'Refund Owed' },
-		'partially-refunded': { bg: 'bg-amber-100', text: 'text-amber-300', label: 'Partially Refunded' },
-		'fully-refunded': { bg: 'bg-red-100', text: 'text-red-300', label: 'Fully Refunded' },
-	};
-	const c = config[status] ?? { bg: 'bg-charcoal/10', text: 'text-[var(--color-cream)]', label: status };
-	return (
-		<span className={`inline-block rounded px-2 py-0.5 text-[10px] font-semibold uppercase ${c.bg} ${c.text}`}>
-			{c.label}
-		</span>
-	);
-}
-
-function AppointmentStatusBadge({ status }: { status: AppointmentStatusType }) {
-	const config: Record<string, { bg: string; text: string; label: string }> = {
-		scheduled: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Scheduled' },
-		completed: { bg: 'bg-charcoal/10', text: 'text-[var(--color-cream)]', label: 'Completed' },
-		canceled: { bg: 'bg-red-100', text: 'text-red-300', label: 'Canceled' },
-		pending: { bg: 'bg-amber-100', text: 'text-amber-300', label: 'Pending' },
-	};
-	const c = config[status] ?? { bg: 'bg-charcoal/10', text: 'text-[var(--color-cream)]', label: status };
-	return (
-		<span className={`inline-block rounded px-2 py-0.5 text-[10px] font-semibold uppercase ${c.bg} ${c.text}`}>
-			{c.label}
-		</span>
-	);
-}

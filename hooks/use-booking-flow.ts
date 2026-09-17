@@ -5,10 +5,9 @@ import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { useSession } from 'next-auth/react';
 import type {
-	CheckoutQuestionResponse as CheckoutQuestion,
 	CheckoutStartResponse,
 	CurrentAvailabilitySlot,
-	CustomerProviderCatalogItem,
+	ProductListItemResponse,
 } from '@opencals/storefront-sdk';
 import type { BookingStep } from '@/lib/booking-constants';
 import { useCart } from '@/contexts/cart-context';
@@ -17,15 +16,17 @@ import { useDateFormatter } from '@/hooks/use-date-formatter';
 import { useProductData } from '@/hooks/use-product-data';
 import { useAvailability } from '@/hooks/use-availability';
 import { useBookingAddOns } from '@/hooks/use-booking-add-ons';
+import { useCheckoutQuestions } from '@/hooks/use-checkout-questions';
+import { usePaymentProviders } from '@/hooks/use-payment-providers';
 
-export function useBookingFlow(slug: string) {
+export function useBookingFlow(slug: string, initialProduct: ProductListItemResponse | null = null) {
 	const router = useRouter();
 	const { data: session } = useSession();
 	const { cartId, setCart, clearCart, timeRemaining } = useCart();
 	const { selectedLocationId: globalLocationId } = useLocation();
 	const { formatCustom, formatTimeRange, timezone } = useDateFormatter();
 
-	const productData = useProductData(slug);
+	const productData = useProductData(slug, initialProduct);
 	const { product, activeVariant, variants, hasVariants, selectedVariantId, setSelectedVariantId } = productData;
 
 	// Selection
@@ -42,11 +43,9 @@ export function useBookingFlow(slug: string) {
 	const prefilledRef = useRef(false);
 
 	// Questions
-	const [questions, setQuestions] = useState<CheckoutQuestion[]>([]);
 	const [answers, setAnswers] = useState<Record<string, string>>({});
 
 	// Payment
-	const [providers, setProviders] = useState<CustomerProviderCatalogItem[]>([]);
 	const [provider, setProvider] = useState<string | null>(null);
 	const [paymentData, setPaymentData] = useState<CheckoutStartResponse | null>(null);
 
@@ -72,38 +71,10 @@ export function useBookingFlow(slug: string) {
 		}
 	}, [session]);
 
-	// Fetch payment providers. Cart-aware, so refetch once the cart exists (committed) — a fully
-	// discounted / sub-minimum cart comes back as a single `no_payment_required` provider.
-	useEffect(() => {
-		const useId = committedCartId ?? cartId;
-		(async () => {
-			try {
-				const res = await fetch('/api/payment/providers', useId ? { headers: { 'X-Cart-Id': useId } } : undefined);
-				if (res.ok) {
-					const data = await res.json();
-					setProviders(Array.isArray(data) ? data : []);
-				}
-			} catch {
-				// non-fatal
-			}
-		})();
-	}, [committedCartId, cartId]);
-
-	// Fetch questions once product known
-	useEffect(() => {
-		if (!slug) return;
-		(async () => {
-			try {
-				const res = await fetch(`/api/products/${slug}/questions?language=en`);
-				if (res.ok) {
-					const data = await res.json();
-					setQuestions(Array.isArray(data) ? data : []);
-				}
-			} catch {
-				// non-fatal
-			}
-		})();
-	}, [slug]);
+	// Payment providers (cart-aware) and checkout questions load in parallel via
+	// SWR — no sequential fetch waterfall, and both dedupe across re-renders.
+	const providers = usePaymentProviders(committedCartId ?? cartId);
+	const questions = useCheckoutQuestions(slug || null);
 
 	const staffForLocation = useMemo(() => {
 		return (activeVariant?.staffMembers ?? []).filter((staff) => {

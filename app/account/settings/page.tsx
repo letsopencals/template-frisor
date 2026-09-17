@@ -11,6 +11,8 @@ import {
 } from '@/lib/schemas';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { useFormSubmit } from '@/hooks/use-form-submit';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export default function SettingsPage() {
 	const [profileLoading, setProfileLoading] = useState(true);
@@ -92,11 +94,10 @@ export default function SettingsPage() {
 								<div className="mt-6 space-y-4">
 									<div>
 										<label className="mb-1 block text-xs font-medium text-[var(--color-cream-muted)]">Email</label>
-										<input
+										<Input
 											type="email"
 											value={email}
 											disabled
-											className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)]/30 px-4 py-3 text-sm text-[var(--color-cream-muted)]"
 										/>
 									</div>
 									<div className="grid gap-4 sm:grid-cols-2">
@@ -107,10 +108,9 @@ export default function SettingsPage() {
 												<FormItem>
 													<FormLabel className="mb-0 text-xs font-medium normal-case tracking-normal text-[var(--color-cream-muted)]">First Name</FormLabel>
 													<FormControl>
-														<input
+														<Input
 															{...field}
 															type="text"
-															className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-bg)] px-4 py-3 text-sm text-[var(--color-cream)] outline-none transition-colors placeholder:text-[var(--color-cream-dim)] focus:border-[var(--color-gold)]"
 														/>
 													</FormControl>
 													<FormMessage />
@@ -124,10 +124,9 @@ export default function SettingsPage() {
 												<FormItem>
 													<FormLabel className="mb-0 text-xs font-medium normal-case tracking-normal text-[var(--color-cream-muted)]">Last Name</FormLabel>
 													<FormControl>
-														<input
+														<Input
 															{...field}
 															type="text"
-															className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-bg)] px-4 py-3 text-sm text-[var(--color-cream)] outline-none transition-colors placeholder:text-[var(--color-cream-dim)] focus:border-[var(--color-gold)]"
 														/>
 													</FormControl>
 													<FormMessage />
@@ -148,13 +147,15 @@ export default function SettingsPage() {
 									</div>
 								)}
 
-								<button
+								<Button
 									type="submit"
+									variant="primary"
+									size="md"
+									className="mt-6"
 									disabled={profileSubmit.isSubmitting}
-									className="mt-6 rounded-full bg-[var(--color-gold)] px-6 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-bg)] transition-all hover:bg-[var(--color-gold-bright)] disabled:opacity-50"
 								>
 									{profileSubmit.isSubmitting ? 'Saving...' : 'Save Changes'}
-								</button>
+								</Button>
 							</form>
 						</Form>
 					)}
@@ -176,11 +177,10 @@ export default function SettingsPage() {
 												Current Password <span className="text-[var(--color-cream-muted)]/50">(leave empty if not set)</span>
 											</FormLabel>
 											<FormControl>
-												<input
+												<Input
 													{...field}
 													type="password"
 													placeholder="Current password"
-													className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-bg)] px-4 py-3 text-sm text-[var(--color-cream)] outline-none transition-colors placeholder:text-[var(--color-cream-dim)] focus:border-[var(--color-gold)]"
 												/>
 											</FormControl>
 											<FormMessage />
@@ -194,11 +194,10 @@ export default function SettingsPage() {
 										<FormItem>
 											<FormLabel className="mb-0 text-xs font-medium normal-case tracking-normal text-[var(--color-cream-muted)]">New Password</FormLabel>
 											<FormControl>
-												<input
+												<Input
 													{...field}
 													type="password"
 													placeholder="Min. 6 characters"
-													className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-bg)] px-4 py-3 text-sm text-[var(--color-cream)] outline-none transition-colors placeholder:text-[var(--color-cream-dim)] focus:border-[var(--color-gold)]"
 												/>
 											</FormControl>
 											<FormMessage />
@@ -212,11 +211,10 @@ export default function SettingsPage() {
 										<FormItem>
 											<FormLabel className="mb-0 text-xs font-medium normal-case tracking-normal text-[var(--color-cream-muted)]">Confirm New Password</FormLabel>
 											<FormControl>
-												<input
+												<Input
 													{...field}
 													type="password"
 													placeholder="Confirm new password"
-													className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-bg)] px-4 py-3 text-sm text-[var(--color-cream)] outline-none transition-colors placeholder:text-[var(--color-cream-dim)] focus:border-[var(--color-gold)]"
 												/>
 											</FormControl>
 											<FormMessage />
@@ -236,13 +234,15 @@ export default function SettingsPage() {
 								</div>
 							)}
 
-							<button
+							<Button
 								type="submit"
+								variant="primary"
+								size="md"
+								className="mt-6"
 								disabled={passwordSubmit.isSubmitting}
-								className="mt-6 rounded-full bg-[var(--color-gold)] px-6 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-bg)] transition-all hover:bg-[var(--color-gold-bright)] disabled:opacity-50"
 							>
 								{passwordSubmit.isSubmitting ? 'Changing...' : 'Change Password'}
-							</button>
+							</Button>
 						</form>
 					</Form>
 				</div>

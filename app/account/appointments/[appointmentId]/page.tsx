@@ -5,7 +5,11 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { formatDuration, formatPrice } from '@/lib/format';
 import { useDateFormatter } from '@/hooks/use-date-formatter';
-import type { AppointmentDetailResponse as Appointment, AppointmentStatusType, CurrentAvailabilitySlot } from '@opencals/storefront-sdk';
+import type { AppointmentDetailResponse as Appointment } from '@opencals/storefront-sdk';
+import { AppointmentStatusBadge } from '@/components/ui/status-badge';
+import { CancelModal } from '@/components/account/appointment-detail/cancel-modal';
+import { RescheduleModal } from '@/components/account/appointment-detail/reschedule-modal';
+import { Button } from '@/components/ui/button';
 
 type ModalState = 'none' | 'cancel' | 'reschedule';
 
@@ -95,7 +99,7 @@ export default function AppointmentDetailPage() {
 							<h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-cream)]">
 								Appointment Details
 							</h2>
-							<StatusBadge status={appointment.status} />
+							<AppointmentStatusBadge status={appointment.status} />
 						</div>
 
 						<div className="mt-5 space-y-4">
@@ -200,20 +204,21 @@ export default function AppointmentDetailPage() {
 							</h2>
 							<div className="mt-4 flex flex-wrap gap-3">
 								{canReschedule && (
-									<button
+									<Button
+										variant="outline"
+										size="sm"
 										onClick={() => setModal('reschedule')}
-										className="flex items-center gap-2 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.15em] text-[var(--color-cream)] transition-colors hover:bg-[var(--color-surface)]"
 									>
 										<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
 											<path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
 										</svg>
 										Reschedule
-									</button>
+									</Button>
 								)}
 								{canCancel && (
 									<button
 										onClick={() => setModal('cancel')}
-										className="flex items-center gap-2 rounded-2xl border border-red-500/30 px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.15em] text-red-600 transition-colors hover:bg-red-500/10"
+										className="flex items-center gap-2 rounded-full border border-red-500/30 px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.15em] text-red-600 transition-colors hover:bg-red-500/10"
 									>
 										<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
 											<path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -299,299 +304,4 @@ function formatGap(seconds: number): string {
 	if (hours > 0 && minutes > 0) return `${hours}h ${minutes}min`;
 	if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''}`;
 	return `${minutes} minute${minutes > 1 ? 's' : ''}`;
-}
-
-function StatusBadge({ status }: { status: AppointmentStatusType }) {
-	const config: Record<string, { bg: string; text: string; label: string }> = {
-		scheduled: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Scheduled' },
-		confirmed: { bg: 'bg-emerald-500/15', text: 'text-emerald-400', label: 'Confirmed' },
-		completed: { bg: 'bg-charcoal/10', text: 'text-[var(--color-cream)]', label: 'Completed' },
-		canceled: { bg: 'bg-red-100', text: 'text-red-300', label: 'Canceled' },
-		pending: { bg: 'bg-amber-100', text: 'text-amber-300', label: 'Pending' },
-	};
-
-	const c = config[status] ?? { bg: 'bg-charcoal/10', text: 'text-[var(--color-cream)]', label: status };
-
-	return (
-		<span className={`inline-block rounded px-2 py-0.5 text-[10px] font-semibold uppercase ${c.bg} ${c.text}`}>
-			{c.label}
-		</span>
-	);
-}
-
-/* ─── Cancel Modal ─── */
-
-function CancelModal({
-	appointmentId,
-	serviceName,
-	onClose,
-	onCanceled,
-}: {
-	appointmentId: string;
-	serviceName: string;
-	onClose: () => void;
-	onCanceled: () => void;
-}) {
-	const [submitting, setSubmitting] = useState(false);
-	const [error, setError] = useState('');
-
-	async function handleCancel() {
-		setSubmitting(true);
-		setError('');
-		try {
-			const res = await fetch(`/api/account/appointments/${appointmentId}/cancel`, { method: 'PUT' });
-			if (res.ok) {
-				onCanceled();
-			} else {
-				const data = await res.json();
-				setError(data.error ?? 'Failed to cancel appointment');
-			}
-		} catch {
-			setError('Something went wrong. Please try again.');
-		} finally {
-			setSubmitting(false);
-		}
-	}
-
-	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center bg-charcoal/40 p-4" onClick={onClose}>
-			<div className="w-full max-w-md rounded-2xl bg-[var(--color-bg)] p-8" onClick={(e) => e.stopPropagation()}>
-				<h3 className="font-display text-xl font-semibold text-[var(--color-cream)]">Cancel Appointment</h3>
-				<p className="mt-3 text-sm text-[var(--color-cream-muted)]">
-					Are you sure you want to cancel your appointment for <span className="font-medium text-[var(--color-cream)]">{serviceName}</span>? This action cannot be undone.
-				</p>
-
-				{error && (
-					<div className="mt-4 border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
-						{error}
-					</div>
-				)}
-
-				<div className="mt-6 flex gap-3">
-					<button
-						onClick={onClose}
-						disabled={submitting}
-						className="flex-1 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.15em] text-[var(--color-cream)] transition-colors hover:bg-[var(--color-surface)] disabled:opacity-50"
-					>
-						Keep Appointment
-					</button>
-					<button
-						onClick={handleCancel}
-						disabled={submitting}
-						className="flex-1 bg-red-600 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.15em] text-white transition-colors hover:bg-red-700 disabled:opacity-50"
-					>
-						{submitting ? 'Canceling...' : 'Cancel Appointment'}
-					</button>
-				</div>
-			</div>
-		</div>
-	);
-}
-
-/* ─── Reschedule Modal ─── */
-
-
-function RescheduleModal({
-	appointment,
-	onClose,
-	onRescheduled,
-}: {
-	appointment: Appointment;
-	onClose: () => void;
-	onRescheduled: () => void;
-}) {
-	const [selectedDate, setSelectedDate] = useState('');
-	const [slots, setSlots] = useState<CurrentAvailabilitySlot[]>([]);
-	const [selectedSlot, setSelectedSlot] = useState<CurrentAvailabilitySlot | null>(null);
-	const [loadingSlots, setLoadingSlots] = useState(false);
-	const [submitting, setSubmitting] = useState(false);
-	const [error, setError] = useState('');
-
-	const { formatCustom: fmtCustom, formatSlot, formatTime: fmtTime, timezone } = useDateFormatter();
-	const productId = appointment.productId;
-
-	// Generate next 30 days
-	const dates: string[] = [];
-	for (let i = 0; i < 30; i++) {
-		const d = new Date();
-		d.setDate(d.getDate() + i);
-		dates.push(d.toISOString().split('T')[0] ?? '');
-	}
-
-	const fetchSlots = useCallback(async (date: string) => {
-		setLoadingSlots(true);
-		setSlots([]);
-		setSelectedSlot(null);
-		try {
-			const params = new URLSearchParams({ productId, date, timezone });
-			if (appointment.staffMemberId) params.set('staffMemberId', appointment.staffMemberId);
-			if (appointment.locationId) params.set('locationId', appointment.locationId);
-
-			const res = await fetch(`/api/availability?${params}`);
-			if (res.ok) {
-				const data = await res.json();
-				// Availability response is an array of slot objects
-				const availableSlots: CurrentAvailabilitySlot[] = Array.isArray(data) ? data : data?.slots ?? [];
-				setSlots(availableSlots);
-			}
-		} catch {
-			// silently fail
-		} finally {
-			setLoadingSlots(false);
-		}
-	}, [productId, timezone, appointment.staffMemberId, appointment.locationId]);
-
-	useEffect(() => {
-		if (selectedDate) {
-			fetchSlots(selectedDate);
-		}
-	}, [selectedDate, fetchSlots]);
-
-	async function handleReschedule() {
-		if (!selectedSlot) return;
-		setSubmitting(true);
-		setError('');
-		try {
-			const res = await fetch(`/api/account/appointments/${appointment.id}/reschedule`, {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					slot: {
-						productId,
-						fromDate: selectedSlot.fromDate,
-						fromTime: selectedSlot.fromTime,
-						toDate: selectedSlot.toDate,
-						toTime: selectedSlot.toTime,
-						staffMemberId: selectedSlot.staffMemberIds?.[0] ?? appointment.staffMemberId ?? null,
-						locationId: selectedSlot.locationIds?.[0] ?? appointment.locationId ?? null,
-					},
-				}),
-			});
-			if (res.ok) {
-				onRescheduled();
-			} else {
-				const data = await res.json();
-				setError(data.error ?? 'Failed to reschedule appointment');
-			}
-		} catch {
-			setError('Something went wrong. Please try again.');
-		} finally {
-			setSubmitting(false);
-		}
-	}
-
-	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center bg-charcoal/40 p-4" onClick={onClose}>
-			<div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-[var(--color-bg)] p-8" onClick={(e) => e.stopPropagation()}>
-				<h3 className="font-display text-xl font-semibold text-[var(--color-cream)]">Reschedule Appointment</h3>
-				<p className="mt-2 text-sm text-[var(--color-cream-muted)]">
-					Choose a new date and time for your {appointment.product?.title ?? 'appointment'}.
-				</p>
-
-				{/* Date Selection */}
-				<div className="mt-6">
-					<label className="text-xs font-semibold uppercase tracking-[0.15em] text-[var(--color-cream)]">
-						Select Date
-					</label>
-					<select
-						value={selectedDate}
-						onChange={(e) => setSelectedDate(e.target.value)}
-						className="mt-2 w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-bg)] px-4 py-2.5 text-sm text-[var(--color-cream)] focus:border-[var(--color-gold)] focus:outline-none"
-					>
-						<option value="">Choose a date...</option>
-						{dates.map((date) => (
-							<option key={date} value={date}>
-								{fmtCustom(date + 'T00:00:00', 'dddd, MMMM D')}
-							</option>
-						))}
-					</select>
-				</div>
-
-				{/* Time Slots */}
-				{selectedDate && (
-					<div className="mt-6">
-						<label className="text-xs font-semibold uppercase tracking-[0.15em] text-[var(--color-cream)]">
-							Available Times
-						</label>
-						{loadingSlots ? (
-							<div className="mt-3 space-y-2">
-								{[...Array(4)].map((_, i) => (
-									<div key={i} className="h-10 animate-pulse rounded bg-[var(--color-surface)]" />
-								))}
-							</div>
-						) : slots.length === 0 ? (
-							<p className="mt-3 text-sm text-[var(--color-cream-muted)]">No available times for this date.</p>
-						) : (
-							<div className="mt-3 grid grid-cols-3 gap-2">
-								{slots.map((slot, i) => {
-									const isSelected = selectedSlot === slot;
-									return (
-										<button
-											key={i}
-											onClick={() => setSelectedSlot(slot)}
-											className={`rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
-												isSelected
-													? 'border-[var(--color-gold)] bg-[var(--color-gold)] text-[var(--color-bg)]'
-													: 'border-[var(--color-line)] text-[var(--color-cream)] hover:border-[var(--color-line-strong)]'
-											}`}
-										>
-											{formatSlot(slot.fromDate, slot.fromTime, 'time')}
-										</button>
-									);
-								})}
-							</div>
-						)}
-					</div>
-				)}
-
-				{/* Review Changes */}
-				{selectedSlot && (
-					<div className="mt-6 rounded-lg border border-[var(--color-gold)]/20 bg-[var(--color-gold)]/10 p-4">
-						<p className="text-xs font-semibold uppercase tracking-[0.15em] text-[var(--color-cream)]">Review Changes</p>
-						<div className="mt-3 space-y-2">
-							<div className="flex justify-between text-sm">
-								<span className="text-[var(--color-cream-muted)]">Current</span>
-								<span className="text-[var(--color-cream)]">
-									{fmtCustom(appointment.from, 'MMM D')}
-									{' at '}
-									{fmtTime(appointment.from)}
-								</span>
-							</div>
-							<div className="flex justify-between text-sm">
-								<span className="text-[var(--color-cream-muted)]">New</span>
-								<span className="font-medium text-[var(--color-gold)]">
-									{fmtCustom(selectedSlot.fromDate + 'T00:00:00', 'MMM D')}
-									{' at '}
-									{formatSlot(selectedSlot.fromDate, selectedSlot.fromTime, 'time')}
-								</span>
-							</div>
-						</div>
-					</div>
-				)}
-
-				{error && (
-					<div className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
-						{error}
-					</div>
-				)}
-
-				<div className="mt-6 flex gap-3">
-					<button
-						onClick={onClose}
-						disabled={submitting}
-						className="flex-1 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.15em] text-[var(--color-cream)] transition-colors hover:bg-[var(--color-surface)] disabled:opacity-50"
-					>
-						Cancel
-					</button>
-					<button
-						onClick={handleReschedule}
-						disabled={!selectedSlot || submitting}
-						className="flex-1 rounded-full bg-[var(--color-gold)] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.15em] text-[var(--color-bg)] transition-colors hover:bg-[var(--color-gold-bright)] disabled:opacity-50"
-					>
-						{submitting ? 'Rescheduling...' : 'Confirm Reschedule'}
-					</button>
-				</div>
-			</div>
-		</div>
-	);
 }

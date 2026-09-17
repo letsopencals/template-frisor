@@ -1,5 +1,8 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+
 interface DetailsStepProps {
 	email: string;
 	firstName: string;
@@ -48,42 +51,42 @@ export function DetailsStep({
 				</div>
 				<div className="space-y-4 px-5 py-5">
 					<Field label="Email" required error={fieldErrors.email?.[0]}>
-						<input
+						<Input
 							type="email"
 							required
 							value={email}
 							onChange={(e) => onChangeEmail(e.target.value)}
 							placeholder="your@email.com"
-							className="w-full rounded-lg border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-4 py-3 text-sm text-[var(--color-cream)] outline-none transition-colors placeholder:text-[var(--color-cream-dim)] focus:border-[var(--color-copper)]"
 						/>
 					</Field>
 					<div className="grid gap-4 sm:grid-cols-2">
 						<Field label="First Name" error={fieldErrors.firstName?.[0]}>
-							<input
+							<Input
 								type="text"
 								value={firstName}
 								onChange={(e) => onChangeFirstName(e.target.value)}
 								placeholder="Jane"
-								className="w-full rounded-lg border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-4 py-3 text-sm text-[var(--color-cream)] outline-none transition-colors placeholder:text-[var(--color-cream-dim)] focus:border-[var(--color-copper)]"
 							/>
 						</Field>
 						<Field label="Last Name" error={fieldErrors.lastName?.[0]}>
-							<input
+							<Input
 								type="text"
 								value={lastName}
 								onChange={(e) => onChangeLastName(e.target.value)}
 								placeholder="Smith"
-								className="w-full rounded-lg border border-[var(--color-line-strong)] bg-[var(--color-bg)] px-4 py-3 text-sm text-[var(--color-cream)] outline-none transition-colors placeholder:text-[var(--color-cream-dim)] focus:border-[var(--color-copper)]"
 							/>
 						</Field>
 					</div>
 				</div>
 			</div>
 
-			<button
+			<Button
 				type="submit"
 				disabled={submitting || !canSubmit}
-				className="flex w-full items-center justify-center gap-3 rounded-full bg-[var(--color-copper)] px-8 py-4 text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-[var(--color-bg-deep)] transition-all hover:bg-[var(--color-copper-bright)] disabled:cursor-not-allowed disabled:opacity-40"
+				variant="accent"
+				size="lg"
+				fullWidth
+				className="gap-3"
 			>
 				{submitting ? 'Reserving…' : 'Continue to Payment'}
 				{!submitting && (
@@ -91,7 +94,7 @@ export function DetailsStep({
 						<path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
 					</svg>
 				)}
-			</button>
+			</Button>
 		</form>
 	);
 }

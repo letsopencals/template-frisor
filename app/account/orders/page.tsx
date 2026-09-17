@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { formatPrice } from '@/lib/format';
 import { useDateFormatter } from '@/hooks/use-date-formatter';
 import type { OrderListItemResponse as Order, CollectionMeta, OrderListLineItem as OrderLineItem } from '@opencals/storefront-sdk';
+import { PaymentStatusBadge } from '@/components/ui/status-badge';
+import { Button } from '@/components/ui/button';
 
 // The SDK Order type is missing `id` but it's returned by the API
 type OrderWithId = Order & { id: string };
@@ -79,7 +81,7 @@ export default function OrdersPage() {
 										<p className="text-sm font-bold text-[var(--color-cream)]">
 											{formatPrice(order.total, order.paymentCurrencyCode)}
 										</p>
-										<PaymentStatusBadge status={order.paymentStatus} />
+										<PaymentStatusBadge status={order.paymentStatus} className="mt-1" />
 									</div>
 								</div>
 
@@ -101,23 +103,25 @@ export default function OrdersPage() {
 					{/* Pagination */}
 					{meta && meta.pageCount > 1 && (
 						<div className="mt-6 flex items-center justify-center gap-2">
-							<button
+							<Button
+								variant="outline"
+								size="sm"
 								onClick={() => setPage((p) => Math.max(1, p - 1))}
 								disabled={page <= 1}
-								className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-1.5 text-xs font-medium text-[var(--color-cream)] transition-colors hover:bg-[var(--color-surface)] disabled:opacity-30"
 							>
 								Previous
-							</button>
+							</Button>
 							<span className="text-xs text-[var(--color-cream-muted)]">
 								Page {meta.page} of {meta.pageCount}
 							</span>
-							<button
+							<Button
+								variant="outline"
+								size="sm"
 								onClick={() => setPage((p) => Math.min(meta.pageCount, p + 1))}
 								disabled={page >= meta.pageCount}
-								className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-1.5 text-xs font-medium text-[var(--color-cream)] transition-colors hover:bg-[var(--color-surface)] disabled:opacity-30"
 							>
 								Next
-							</button>
+							</Button>
 						</div>
 					)}
 				</>
@@ -126,18 +130,3 @@ export default function OrdersPage() {
 	);
 }
 
-function PaymentStatusBadge({ status }: { status: Order['paymentStatus'] }) {
-	const config: Record<string, { bg: string; text: string; label: string }> = {
-		paid: { bg: 'bg-emerald-500/15', text: 'text-emerald-400', label: 'Paid' },
-		unpaid: { bg: 'bg-amber-100', text: 'text-amber-300', label: 'Unpaid' },
-		'partially-paid': { bg: 'bg-amber-100', text: 'text-amber-300', label: 'Partial' },
-	};
-
-	const c = config[status] ?? { bg: 'bg-charcoal/10', text: 'text-[var(--color-cream)]', label: status };
-
-	return (
-		<span className={`mt-1 inline-block rounded px-2 py-0.5 text-[10px] font-semibold uppercase ${c.bg} ${c.text}`}>
-			{c.label}
-		</span>
-	);
-}

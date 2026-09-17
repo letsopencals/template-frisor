@@ -4,7 +4,9 @@ import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { formatDuration } from '@/lib/format';
 import { useDateFormatter } from '@/hooks/use-date-formatter';
-import type { AppointmentListItemResponse as Appointment, CollectionMeta, AppointmentStatusType } from '@opencals/storefront-sdk';
+import type { AppointmentListItemResponse as Appointment, CollectionMeta } from '@opencals/storefront-sdk';
+import { AppointmentStatusBadge } from '@/components/ui/status-badge';
+import { Button } from '@/components/ui/button';
 
 export default function AppointmentsPage() {
 	const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -115,7 +117,7 @@ export default function AppointmentsPage() {
 
 									{/* Status */}
 									<div className="text-right">
-										<StatusBadge status={appt.status} />
+										<AppointmentStatusBadge status={appt.status} />
 										{appt.numberOfAttendees > 1 && (
 											<p className="mt-1 text-xs text-[var(--color-cream-muted)]">
 												{appt.numberOfAttendees} attendees
@@ -130,23 +132,25 @@ export default function AppointmentsPage() {
 					{/* Pagination */}
 					{meta && meta.pageCount > 1 && (
 						<div className="mt-6 flex items-center justify-center gap-2">
-							<button
+							<Button
+								variant="outline"
+								size="sm"
 								onClick={() => setPage((p) => Math.max(1, p - 1))}
 								disabled={page <= 1}
-								className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-1.5 text-xs font-medium text-[var(--color-cream)] transition-colors hover:bg-[var(--color-surface)] disabled:opacity-30"
 							>
 								Previous
-							</button>
+							</Button>
 							<span className="text-xs text-[var(--color-cream-muted)]">
 								Page {meta.page} of {meta.pageCount}
 							</span>
-							<button
+							<Button
+								variant="outline"
+								size="sm"
 								onClick={() => setPage((p) => Math.min(meta.pageCount, p + 1))}
 								disabled={page >= meta.pageCount}
-								className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-1.5 text-xs font-medium text-[var(--color-cream)] transition-colors hover:bg-[var(--color-surface)] disabled:opacity-30"
 							>
 								Next
-							</button>
+							</Button>
 						</div>
 					)}
 				</>
@@ -155,20 +159,3 @@ export default function AppointmentsPage() {
 	);
 }
 
-function StatusBadge({ status }: { status: AppointmentStatusType }) {
-	const config: Record<string, { bg: string; text: string; label: string }> = {
-		scheduled: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Scheduled' },
-		confirmed: { bg: 'bg-emerald-500/15', text: 'text-emerald-400', label: 'Confirmed' },
-		completed: { bg: 'bg-charcoal/10', text: 'text-[var(--color-cream)]', label: 'Completed' },
-		canceled: { bg: 'bg-red-100', text: 'text-red-300', label: 'Canceled' },
-		pending: { bg: 'bg-amber-100', text: 'text-amber-300', label: 'Pending' },
-	};
-
-	const c = config[status] ?? { bg: 'bg-charcoal/10', text: 'text-[var(--color-cream)]', label: status };
-
-	return (
-		<span className={`inline-block rounded px-2 py-0.5 text-[10px] font-semibold uppercase ${c.bg} ${c.text}`}>
-			{c.label}
-		</span>
-	);
-}

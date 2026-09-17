@@ -5,7 +5,8 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { formatPrice } from '@/lib/format';
 import { useDateFormatter } from '@/hooks/use-date-formatter';
-import type { AppointmentListItemResponse as Appointment, OrderListItemResponse as Order, CollectionMeta, AppointmentStatusType } from '@opencals/storefront-sdk';
+import type { AppointmentListItemResponse as Appointment, OrderListItemResponse as Order, CollectionMeta } from '@opencals/storefront-sdk';
+import { AppointmentStatusBadge, PaymentStatusBadge } from '@/components/ui/status-badge';
 
 type OrderWithId = Order & { id: string };
 
@@ -129,7 +130,7 @@ export default function AccountDashboard() {
 											<p className="text-sm font-semibold text-[var(--color-cream)]">
 												{formatPrice(order.total, order.paymentCurrencyCode)}
 											</p>
-											<OrderStatusBadge status={order.paymentStatus} />
+											<PaymentStatusBadge status={order.paymentStatus} />
 										</div>
 									</Link>
 								))}
@@ -174,36 +175,3 @@ export default function AccountDashboard() {
 	);
 }
 
-function AppointmentStatusBadge({ status }: { status: AppointmentStatusType }) {
-	const config: Record<string, { bg: string; text: string; label: string }> = {
-		scheduled: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Scheduled' },
-		confirmed: { bg: 'bg-emerald-500/15', text: 'text-emerald-400', label: 'Confirmed' },
-		completed: { bg: 'bg-charcoal/10', text: 'text-[var(--color-cream)]', label: 'Completed' },
-		canceled: { bg: 'bg-red-100', text: 'text-red-300', label: 'Canceled' },
-		pending: { bg: 'bg-amber-100', text: 'text-amber-300', label: 'Pending' },
-	};
-
-	const c = config[status] ?? { bg: 'bg-charcoal/10', text: 'text-[var(--color-cream)]', label: status };
-
-	return (
-		<span className={`inline-block rounded px-2 py-0.5 text-[10px] font-semibold uppercase ${c.bg} ${c.text}`}>
-			{c.label}
-		</span>
-	);
-}
-
-function OrderStatusBadge({ status }: { status: Order['paymentStatus'] }) {
-	const config: Record<string, { bg: string; text: string; label: string }> = {
-		paid: { bg: 'bg-emerald-500/15', text: 'text-emerald-400', label: 'Paid' },
-		unpaid: { bg: 'bg-amber-100', text: 'text-amber-300', label: 'Unpaid' },
-		'partially-paid': { bg: 'bg-amber-100', text: 'text-amber-300', label: 'Partial' },
-	};
-
-	const c = config[status] ?? { bg: 'bg-charcoal/10', text: 'text-[var(--color-cream)]', label: status };
-
-	return (
-		<span className={`inline-block rounded px-2 py-0.5 text-[10px] font-semibold uppercase ${c.bg} ${c.text}`}>
-			{c.label}
-		</span>
-	);
-}

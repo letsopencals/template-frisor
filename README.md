@@ -208,6 +208,15 @@ Frisor is one of the open-source booking templates built on the Opencals Storefr
 
 See all templates and the Storefront API at **[opencals.com/developers](https://opencals.com/developers)**.
 
+## Build with AI
+
+Prefer to let an AI agent do the heavy lifting? Install the **[Opencals Agent Skills](https://github.com/letsopencals/skills)** in Claude Code, Cursor, Codex or Gemini CLI:
+
+- **`opencals-build-booking-site`** — scaffold, wire and deploy a template like this one
+- **`opencals-storefront-api`** — ground-truth reference for the Opencals API & SDK
+
+Docs: **[opencals.com/docs → AI Agents](https://opencals.com/docs/ai-agents/overview)**.
+
 ## License
 
 MIT

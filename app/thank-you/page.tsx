@@ -98,6 +98,24 @@ function ThankYouContent() {
 						<div className="h-48 animate-pulse rounded-2xl bg-[var(--color-surface)]" />
 						<div className="h-48 animate-pulse rounded-2xl bg-[var(--color-surface)]" />
 					</div>
+				) : !order ? (
+					// No order without a session: checkout with an existing customer's email doesn't sign the
+					// visitor in, so the booking is only visible after signing in with that email.
+					<div className="mx-auto mt-12 max-w-xl text-center">
+						<div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-8">
+							<h2 className="text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-[var(--color-cream)]">Booking received</h2>
+							<p className="mt-3 text-sm text-[var(--color-cream-muted)]">
+								A confirmation has been sent to your email. Sign in with the email you booked with to see your
+								booking details.
+							</p>
+							<Link
+								href={`/auth/sign-in?callbackUrl=${encodeURIComponent(orderId ? `/account/orders/${orderId}` : '/account/orders')}`}
+								className="mt-6 inline-flex items-center justify-center rounded-full bg-[var(--color-gold)] px-6 py-3.5 text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-[var(--color-bg)] transition-all hover:bg-[var(--color-gold-bright)]"
+							>
+								Sign in
+							</Link>
+						</div>
+					</div>
 				) : (
 					<div className="mt-12 grid gap-8 lg:grid-cols-3">
 						{/* Main content */}

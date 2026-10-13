@@ -17,7 +17,7 @@ function getImageUrl(staff: StaffMember): string | null {
 function getInitials(staff: StaffMember): string {
 	const first = (staff.firstName?.[0] ?? '').toUpperCase();
 	const last = (staff.lastName?.[0] ?? '').toUpperCase();
-	return `${first}${last}` || (staff.email?.[0]?.toUpperCase() ?? '?');
+	return `${first}${last}` || '?';
 }
 
 export function StaffSelector({ staffMembers, selected, onSelect, hideLabel = false }: StaffSelectorProps) {

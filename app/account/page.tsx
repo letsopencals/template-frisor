@@ -7,6 +7,7 @@ import { formatPrice } from '@/lib/format';
 import { useDateFormatter } from '@/hooks/use-date-formatter';
 import type { AppointmentListItemResponse as Appointment, OrderListItemResponse as Order, CollectionMeta } from '@opencals/storefront-sdk';
 import { AppointmentStatusBadge, PaymentStatusBadge } from '@/components/ui/status-badge';
+import { onSessionExpired } from '@/lib/session-expired';
 
 type OrderWithId = Order & { id: string };
 
@@ -24,6 +25,7 @@ export default function AccountDashboard() {
 					fetch('/api/account/appointments?take=5'),
 					fetch('/api/account/orders?take=5'),
 				]);
+				if (apptRes.status === 401 || ordersRes.status === 401) return onSessionExpired();
 
 				if (apptRes.ok) {
 					const data: { data: Appointment[]; meta: CollectionMeta } = await apptRes.json();

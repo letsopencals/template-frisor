@@ -10,6 +10,7 @@ import { AppointmentStatusBadge } from '@/components/ui/status-badge';
 import { CancelModal } from '@/components/account/appointment-detail/cancel-modal';
 import { RescheduleModal } from '@/components/account/appointment-detail/reschedule-modal';
 import { Button } from '@/components/ui/button';
+import { onSessionExpired } from '@/lib/session-expired';
 
 type ModalState = 'none' | 'cancel' | 'reschedule';
 
@@ -23,6 +24,7 @@ export default function AppointmentDetailPage() {
 	const fetchAppointment = useCallback(async () => {
 		try {
 			const res = await fetch(`/api/account/appointments/${appointmentId}`);
+			if (res.status === 401) return onSessionExpired();
 			if (res.ok) {
 				setAppointment(await res.json());
 			}

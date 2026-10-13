@@ -7,6 +7,7 @@ import { useDateFormatter } from '@/hooks/use-date-formatter';
 import type { OrderListItemResponse as Order, CollectionMeta, OrderListLineItem as OrderLineItem } from '@opencals/storefront-sdk';
 import { PaymentStatusBadge } from '@/components/ui/status-badge';
 import { Button } from '@/components/ui/button';
+import { onSessionExpired } from '@/lib/session-expired';
 
 // The SDK Order type is missing `id` but it's returned by the API
 type OrderWithId = Order & { id: string };
@@ -23,6 +24,7 @@ export default function OrdersPage() {
 		setLoading(true);
 		try {
 			const res = await fetch(`/api/account/orders?take=10&page=${p}`);
+			if (res.status === 401) return onSessionExpired();
 			if (res.ok) {
 				const data: { data: OrderWithId[]; meta: CollectionMeta } = await res.json();
 				setOrders(data.data ?? []);

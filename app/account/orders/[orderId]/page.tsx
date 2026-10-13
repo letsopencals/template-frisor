@@ -12,6 +12,7 @@ import {
 	FulfillmentStatusBadge,
 	RefundStatusBadge,
 } from '@/components/ui/status-badge';
+import { onSessionExpired } from '@/lib/session-expired';
 
 export default function OrderDetailPage() {
 	const { orderId } = useParams<{ orderId: string }>();
@@ -23,6 +24,7 @@ export default function OrderDetailPage() {
 		async function fetchOrder() {
 			try {
 				const res = await fetch(`/api/account/orders/${orderId}`);
+				if (res.status === 401) return onSessionExpired();
 				if (res.ok) {
 					setOrder(await res.json());
 				}

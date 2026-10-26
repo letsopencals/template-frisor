@@ -5,6 +5,11 @@ const nextConfig: NextConfig = {
 		return [
 			{ source: '/menu', destination: '/services', permanent: true },
 			{ source: '/apothecary', destination: '/shelf', permanent: true },
+			// Older account paths still used by emailed links.
+			{ source: '/account/appointments', destination: '/account', permanent: false },
+			{ source: '/account/appointments/:id', destination: '/account/visits/:id', permanent: false },
+			{ source: '/account/settings', destination: '/account/profile', permanent: false },
+			{ source: '/account/orders/:id', destination: '/account/orders', permanent: false },
 		];
 	},
 	images: {

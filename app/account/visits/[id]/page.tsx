@@ -1,6 +1,6 @@
 import { VisitDetail } from '@/components/account/visit-detail';
 
-export default async function VisitPage({ params }: { params: Promise<{ id: string }> }) {
-	const { id } = await params;
-	return <VisitDetail id={id} />;
+export default async function VisitPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ action?: string }> }) {
+	const [{ id }, { action }] = await Promise.all([params, searchParams]);
+	return <VisitDetail id={id} action={action ?? null} />;
 }

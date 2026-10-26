@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { getCatalog } from '@/lib/catalog-server';
 import { siteConfig } from '@/lib/site-config';
-import { PageHead } from '@/components/site/page-head';
 import { ShelfSeal } from '@/components/shelf/shelf-seal';
 import { ShelfBrowser } from '@/components/shelf/shelf-browser';
 

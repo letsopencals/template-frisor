@@ -26,9 +26,9 @@ function gapLabel(seconds: number): string {
 }
 
 /** One visit: the facts, then move / cancel (within the shop's notice), calendar and directions. */
-export function VisitDetail({ id }: { id: string }) {
+export function VisitDetail({ id, action }: { id: string; action?: string | null }) {
 	const { sittings, loading, refresh } = useSittings();
-	const [mode, setMode] = useState<'view' | 'move' | 'cancel'>('view');
+	const [mode, setMode] = useState<'view' | 'move' | 'cancel'>(action === 'reschedule' ? 'move' : action === 'cancel' ? 'cancel' : 'view');
 	const [busy, setBusy] = useState(false);
 	const [notice, setNotice] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);

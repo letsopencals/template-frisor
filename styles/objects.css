@@ -1,0 +1,186 @@
+/*
+ * The shop's objects as CSS: gilt lettering, the brass keyline, chamfered tag buttons,
+ * towel paper with deckled and perforated edges, the guard-comb rule and the mirror ring.
+ * See DESIGN.md "The objects the design is built from".
+ */
+
+/* Gold-leaf lettering on the window: brass gradient fill with a dark keyline. */
+.gilt {
+	background: linear-gradient(176deg, #f6e3b4 0%, #e7cb8e 28%, #c49a58 52%, #8a6631 74%, #d9b77a 100%);
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+	-webkit-text-stroke: 0.6px rgba(22, 29, 27, 0.35);
+	filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.45));
+}
+
+/* Emphasis without italics: a thin brass rule under the word. */
+.keyline {
+	background-image: linear-gradient(var(--color-brass), var(--color-brass));
+	background-size: 100% 1px;
+	background-position: 0 92%;
+	background-repeat: no-repeat;
+	padding-bottom: 0.04em;
+}
+
+/* Chamfered tag buttons: clipped corners like a brass price tag. */
+.tag-btn {
+	--chamfer: 9px;
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.6rem;
+	font-family: var(--font-sans);
+	font-weight: 600;
+	font-size: 0.8125rem;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	clip-path: polygon(var(--chamfer) 0, calc(100% - var(--chamfer)) 0, 100% var(--chamfer), 100% calc(100% - var(--chamfer)), calc(100% - var(--chamfer)) 100%, var(--chamfer) 100%, 0 calc(100% - var(--chamfer)), 0 var(--chamfer));
+	transition: background-color 200ms var(--ease-chair), color 200ms var(--ease-chair), transform 200ms var(--ease-chair);
+	cursor: pointer;
+	white-space: nowrap;
+}
+.tag-btn:active {
+	transform: translateY(1px);
+}
+.tag-btn[disabled],
+.tag-btn[aria-disabled='true'] {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+.tag-btn--brass {
+	background: linear-gradient(180deg, var(--color-brass-hi), var(--color-brass) 55%, #b2894a);
+	color: var(--color-ink);
+}
+.tag-btn--brass:hover {
+	background: linear-gradient(180deg, #f1dba6, var(--color-brass-hi) 60%, var(--color-brass));
+}
+/* Keyline variant: a 1px brass outline drawn inside the clipped shape. */
+.tag-btn--line {
+	background: var(--color-brass);
+	color: var(--color-brass-hi);
+	isolation: isolate;
+}
+.tag-btn--line::before {
+	content: '';
+	position: absolute;
+	inset: 1px;
+	z-index: -1;
+	background: var(--tag-fill, var(--color-lacquer));
+	clip-path: inherit;
+}
+.tag-btn--line:hover::before {
+	background: var(--color-felt);
+}
+.tag-btn--ink {
+	background: var(--color-ink);
+	color: var(--color-towel);
+}
+.tag-btn--ink:hover {
+	background: var(--color-walnut);
+}
+
+/* Towel paper: the menu card, the docket, the regular's card, labels. */
+.paper {
+	background-color: var(--color-towel);
+	background-image:
+		radial-gradient(rgba(74, 47, 31, 0.05) 1px, transparent 1px),
+		linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(229, 220, 200, 0.4));
+	background-size: 5px 5px, 100% 100%;
+	color: var(--color-ink);
+}
+
+/* Deckled bottom edge (torn paper). */
+.deckle {
+	--deckle: 10px;
+	mask: linear-gradient(#000, #000) top / 100% calc(100% - var(--deckle)) no-repeat,
+		radial-gradient(circle at 50% 0, #000 calc(var(--deckle) * 0.62), transparent calc(var(--deckle) * 0.66)) bottom / calc(var(--deckle) * 1.4) var(--deckle) repeat-x;
+}
+
+/* Perforation between docket sections. */
+.perf {
+	position: relative;
+	height: 18px;
+}
+.perf::before {
+	content: '';
+	position: absolute;
+	left: 14px;
+	right: 14px;
+	top: 50%;
+	border-top: 2px dotted var(--color-towel-3);
+}
+.perf::after {
+	content: '';
+	position: absolute;
+	inset: 0 -9px;
+	background:
+		radial-gradient(circle at 0 50%, var(--perf-bg, var(--color-lacquer)) 8px, transparent 8.5px),
+		radial-gradient(circle at 100% 50%, var(--perf-bg, var(--color-lacquer)) 8px, transparent 8.5px);
+}
+
+/* The guard-comb rule: teeth that get longer like clipper guards. */
+.guard-rule {
+	height: 14px;
+	background:
+		repeating-linear-gradient(90deg, var(--color-brass-lo) 0 1px, transparent 1px 7px) bottom / 100% 6px no-repeat,
+		repeating-linear-gradient(90deg, var(--color-brass) 0 1px, transparent 1px 35px) bottom / 100% 14px no-repeat,
+		linear-gradient(var(--color-brass-lo), var(--color-brass-lo)) bottom / 100% 1px no-repeat;
+	opacity: 0.8;
+}
+.paper .guard-rule {
+	background:
+		repeating-linear-gradient(90deg, var(--color-towel-3) 0 1px, transparent 1px 7px) bottom / 100% 6px no-repeat,
+		repeating-linear-gradient(90deg, var(--color-ink-3) 0 1px, transparent 1px 35px) bottom / 100% 14px no-repeat,
+		linear-gradient(var(--color-towel-3), var(--color-towel-3)) bottom / 100% 1px no-repeat;
+}
+
+/* The station mirror: round portrait in a turned brass ring. */
+.mirror {
+	position: relative;
+	border-radius: 9999px;
+	padding: 6px;
+	background: conic-gradient(from 200deg, #8a6631, #e7cb8e, #c49a58, #6d4f24, #e7cb8e, #8a6631);
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 18px 40px -18px rgba(0, 0, 0, 0.8);
+}
+.mirror > * {
+	border-radius: 9999px;
+	overflow: hidden;
+	box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.55);
+}
+
+/* Lacquer panel with a 1px line. */
+.panel {
+	background: var(--color-lacquer-2);
+	border: 1px solid var(--color-line);
+}
+
+/* Shop-window vignette over photos. */
+.vignette {
+	position: relative;
+}
+.vignette::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background: radial-gradient(120% 90% at 50% 40%, transparent 40%, rgba(12, 17, 16, 0.75) 100%);
+}
+
+/* Enamel number plate (shop and chair numbers). */
+.enamel {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 2.25rem;
+	height: 2.25rem;
+	padding: 0 0.5rem;
+	border-radius: 4px;
+	background: var(--color-towel);
+	color: var(--color-ink);
+	box-shadow: inset 0 0 0 2px var(--color-towel), inset 0 0 0 3px var(--color-ink);
+	font-family: var(--font-sign);
+	font-weight: 800;
+	font-size: 1.1rem;
+}

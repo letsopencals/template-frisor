@@ -1,0 +1,132 @@
+@import 'tailwindcss';
+@import '../styles/objects.css';
+@import '../styles/motion.css';
+
+/*
+ * Frisør: "Barber & Apothecary". DESIGN.md is the contract.
+ * Bottle-green lacquer, brass, walnut, cream towel paper. Square corners on lacquer,
+ * chamfered tags for buttons, deckled or perforated edges on paper.
+ */
+@theme {
+	/* Lacquer: the room */
+	--color-lacquer: #18211f;
+	--color-lacquer-2: #1f2a27;
+	--color-felt: #273531;
+	--color-line: #3a4a45;
+	--color-line-soft: rgba(196, 154, 88, 0.18);
+
+	/* Brass: lettering, fittings, the primary action */
+	--color-brass: #c49a58;
+	--color-brass-hi: #e7cb8e;
+	--color-brass-lo: #8a6631;
+
+	/* Towel paper: things you hold */
+	--color-towel: #f2ecdf;
+	--color-towel-2: #e5dcc8;
+	--color-towel-3: #d4c8ad;
+	--color-ink: #161d1b;
+	--color-ink-2: #46504c;
+	--color-ink-3: #7a807a;
+
+	/* Signals */
+	--color-oxblood: #7c2d29;
+	--color-oxblood-hi: #a8423b;
+	--color-steel: #97a39e;
+	--color-steel-2: #6f7c77;
+	--color-walnut: #4a2f1f;
+
+	/* Type (variables set by next/font on <html>, app/layout.tsx) */
+	--font-sign: var(--font-sign-frisor), 'Big Shoulders Display', Impact, sans-serif;
+	--font-serif: var(--font-serif-frisor), 'Gloock', Georgia, serif;
+	--font-sans: var(--font-sans-frisor), 'Schibsted Grotesk', system-ui, sans-serif;
+
+	--ease-chair: cubic-bezier(0.22, 0.8, 0.24, 1);
+	--ease-strop: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+:root {
+	/* Height of the bottom Counter bar; pages pad by it so nothing sits under the bar. */
+	--counter-h: 64px;
+	--counter-pad: calc(var(--counter-h) + env(safe-area-inset-bottom, 0px));
+	color-scheme: dark;
+}
+
+@media (min-width: 1024px) {
+	:root {
+		--counter-h: 72px;
+	}
+}
+
+html {
+	background: var(--color-lacquer);
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	background: var(--color-lacquer);
+	color: var(--color-towel);
+	font-family: var(--font-sans);
+	font-feature-settings: 'ss01', 'tnum' 0;
+	padding-bottom: var(--counter-pad);
+	min-height: 100svh;
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+}
+
+::selection {
+	background: var(--color-brass);
+	color: var(--color-ink);
+}
+
+:focus-visible {
+	outline: 2px solid var(--color-brass-hi);
+	outline-offset: 3px;
+}
+
+.paper :focus-visible,
+.paper:focus-visible {
+	outline-color: var(--color-walnut);
+}
+
+img {
+	max-width: 100%;
+}
+
+.tabular {
+	font-variant-numeric: tabular-nums;
+}
+
+.sign {
+	font-family: var(--font-sign);
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+	line-height: 0.9;
+}
+
+.serif {
+	font-family: var(--font-serif);
+	font-weight: 400;
+	font-style: normal;
+}
+
+.label {
+	font-family: var(--font-sans);
+	font-size: 0.6875rem;
+	font-weight: 600;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+}
+
+.sr-only-focusable:not(:focus):not(:focus-within) {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+}
+
+/* Scrollbars, quietly */
+* {
+	scrollbar-color: var(--color-line) transparent;
+}

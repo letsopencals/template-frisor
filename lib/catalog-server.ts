@@ -30,8 +30,10 @@ export const getCatalog = cache(async (): Promise<Catalog> => {
 		getStoreSettings(),
 	]);
 	const services = toServices(products, sectionOf);
+	const shopOrder = Object.keys(siteConfig.shops);
 	const shops = locations
 		.filter((l) => l.type === 'physical')
+		.sort((a, b) => (shopOrder.indexOf(a.slug) + 1 || 999) - (shopOrder.indexOf(b.slug) + 1 || 999))
 		.map((l, i) => toShop({ id: l.id, slug: l.slug, title: l.title, addressLines: l.addressLines, latitude: l.latitude, longitude: l.longitude }, i, barbers));
 	const shelf = toShelf(addOns);
 	const shelfIds = new Set(shelf.map((s) => s.id));

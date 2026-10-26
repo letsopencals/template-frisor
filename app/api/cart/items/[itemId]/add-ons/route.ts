@@ -34,6 +34,7 @@ export async function POST(
 				'X-Cart-Id': cartId,
 				...(token ? { Authorization: `Bearer ${token}` } : {}),
 			},
+			throwOnError: true,
 		});
 		return NextResponse.json(data);
 	} catch (err) {

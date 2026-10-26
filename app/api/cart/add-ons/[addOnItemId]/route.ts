@@ -23,6 +23,7 @@ export async function PATCH(
 			path: { cartAddOnItemId: addOnItemId },
 			body: { quantity },
 			headers: token ? { Authorization: `Bearer ${token}` } : {},
+			throwOnError: true,
 		});
 		return NextResponse.json(data);
 	} catch (err) {
@@ -41,6 +42,7 @@ export async function DELETE(
 		const { data } = await CartService.removeAddOn({
 			path: { cartAddOnItemId: addOnItemId },
 			headers: token ? { Authorization: `Bearer ${token}` } : {},
+			throwOnError: true,
 		});
 		return NextResponse.json(data);
 	} catch (err) {

@@ -12,7 +12,7 @@ export function Mirror({ src, name, size = 160, className, priority }: { src: st
 		.slice(0, 2)
 		.join('');
 	return (
-		<div className={clsx('mirror shrink-0', className)} style={{ width: size, height: size }}>
+		<div className={clsx('mirror shrink-0', className)} style={{ width: size, maxWidth: '100%', aspectRatio: '1 / 1' }}>
 			<div className="relative h-full w-full bg-lacquer-2">
 				{src ? (
 					// eslint-disable-next-line @next/next/no-img-element

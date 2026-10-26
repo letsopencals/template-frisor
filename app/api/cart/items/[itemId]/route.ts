@@ -13,7 +13,7 @@ export async function DELETE(
 
 	try {
 		const token = await getAccessToken();
-		const { data } = await CartService.removeItem({ path: { itemId }, headers: { Authorization: `Bearer ${token ?? ''}` } });
+		const { data } = await CartService.removeItem({ path: { itemId }, headers: { Authorization: `Bearer ${token ?? ''}` }, throwOnError: true });
 		// A released hold frees its time again.
 		revalidateAvailability();
 		return NextResponse.json(data);

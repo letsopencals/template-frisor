@@ -58,7 +58,7 @@ const EMPTY_BILLING: BillingDraft = {
 	city: '',
 	state: '',
 	postalCode: '',
-	country: 'GB',
+	country: 'DE',
 	taxRegistrationId: '',
 };
 const EMPTY_CONSENT: ConsentDraft = { email: false, sms: false, whatsapp: false };

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { isUpcoming } from '@/lib/sittings';
+import { isUpcoming, type Sitting } from '@/lib/sittings';
 import type { ShelfItem } from '@/lib/catalog';
 import { useHydrated } from '@/hooks/use-hydrated';
 import { useSittings } from '@/components/account/use-sittings';
@@ -9,14 +9,23 @@ import { NextVisit } from '@/components/account/next-visit';
 import { VisitRow } from '@/components/account/visit-row';
 import { YourShelf } from '@/components/account/your-shelf';
 
+interface Props {
+	shelf: ShelfItem[];
+	shops: { id: string; short: string }[];
+	currency: string;
+}
+
 /** /account: the next visit, other upcoming ones, past visits with Book again, and your shelf. */
-export function VisitsView({ shelf, shops, currency }: { shelf: ShelfItem[]; shops: { id: string; short: string }[]; currency: string }) {
+export function VisitsView(props: Props) {
 	const { sittings, loading, error } = useSittings();
 	const hydrated = useHydrated();
 	if (loading || !hydrated) return <div className="h-64 animate-pulse bg-paper-2" aria-busy="true" />;
 	if (error) return <p className="text-oxblood">We couldn’t load your visits. Please refresh the page.</p>;
+	return <VisitsBody {...props} sittings={sittings} now={Date.now()} />;
+}
 
-	const now = Date.now();
+/** Pure props, so /preview renders it with fixtures. */
+export function VisitsBody({ sittings, shelf, shops, currency, now }: Props & { sittings: Sitting[]; now: number }) {
 	const upcoming = sittings.filter((s) => isUpcoming(s, now)).sort((a, b) => new Date(a.from).getTime() - new Date(b.from).getTime());
 	const past = sittings.filter((s) => !isUpcoming(s, now));
 	const [next, ...later] = upcoming;

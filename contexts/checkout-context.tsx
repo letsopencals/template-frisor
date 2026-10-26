@@ -17,9 +17,8 @@ import { useSettings } from '@/contexts/settings-context';
 import { usePaymentProviders } from '@/hooks/use-payment-providers';
 
 /**
- * Clinic checkout is two steps — contact details, then payment. Intake
- * questions are answered per visit in the booking composer, so there is no
- * questions step here.
+ * The docket's state: who's sitting (contact details), then how they settle up. Notes for the
+ * barber are answered on /book, so there is no questions step here.
  */
 export type CheckoutStep = 'customer' | 'payment-select' | 'payment';
 
@@ -196,7 +195,7 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
 	const [selectedProvider, setSelectedProvider] = useState<string | null>(null);
 	const [paymentData, setPaymentData] = useState<CheckoutStartResponse | null>(null);
 
-	// No cart at all → back to Find care. Only once CartProvider has read the
+	// No cart at all → back to /book. Only once CartProvider has read the
 	// stored cart id from localStorage (before that cartId is always null, so a
 	// hard reload of /checkout would otherwise bounce away).
 	useEffect(() => {

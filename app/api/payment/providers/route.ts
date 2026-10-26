@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
 		// Cart-scoped: the provider list is amount-aware when the cart id is forwarded.
 		const cartId = request.headers.get('X-Cart-Id') ?? '';
 		const { data } = await PaymentService.getAvailableProviders(
-			{ headers: { 'X-Cart-Id': cartId } },
+			{ headers: { 'X-Cart-Id': cartId }, throwOnError: true },
 		);
 		return NextResponse.json(data);
 	} catch (err) {

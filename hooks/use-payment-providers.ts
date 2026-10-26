@@ -2,7 +2,6 @@
 
 import useSWR from 'swr';
 import type { CustomerProviderCatalogItem } from '@opencals/storefront-sdk';
-import { fetcher } from '@/lib/fetcher';
 
 /**
  * Payment providers for the current cart. Cart-aware: a fully discounted /

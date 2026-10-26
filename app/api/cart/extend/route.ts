@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
 
 	try {
 		const token = await getAccessToken();
-		const { data } = await CartService.extendExpiration({ headers: { Authorization: `Bearer ${token ?? ''}`, 'X-Cart-Id': cartId } });
+		const { data } = await CartService.extendExpiration({ headers: { Authorization: `Bearer ${token ?? ''}`, 'X-Cart-Id': cartId }, throwOnError: true });
 		return NextResponse.json(data);
 	} catch (err) {
 		return handleApiError(err);

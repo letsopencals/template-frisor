@@ -7,6 +7,7 @@ import { ACCESS_TOKEN_HEADER } from '@/lib/session-header';
  * 1. Session: this is where the customer's access token gets refreshed and written back to
  *    the session cookie (lib/auth.ts), and handed to API routes (lib/session-header.ts).
  * 2. Account pages need a live session (not just a cookie); auth pages bounce signed-in users.
+ *    The sign-in redirect keeps the full path and query, so emailed `?action=` links survive it.
  */
 
 /** NextAuth's own endpoints (session, csrf, signin, signout, callback...) refresh and set the cookie themselves. */
@@ -16,7 +17,7 @@ const withSession = auth((req) => {
 	const { pathname, search } = req.nextUrl;
 	const accessToken = req.auth?.accessToken;
 
-	// Protect account pages - redirect to sign-in if there's no live session
+	// Protect account pages - redirect to sign-in if not authenticated
 	if (pathname.startsWith('/account') && !accessToken) {
 		const signIn = new URL('/auth/sign-in', req.url);
 		signIn.searchParams.set('callbackUrl', pathname + search);
@@ -41,6 +42,6 @@ export default function middleware(req: NextRequest, ev: NextFetchEvent) {
 }
 
 export const config = {
-	// Pages and API routes; not Next's static assets or files with an extension.
-	matcher: ['/((?!_next/static|_next/image|.*\\.[^/]+$).*)'],
+	// API routes are included so they get the refreshed token (see lib/session-header.ts).
+	matcher: ['/account/:path*', '/auth/:path*', '/api/:path*'],
 };

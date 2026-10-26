@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
 				protocol: 'https',
 				hostname: '*.opencals.com',
 			},
+			{
+				protocol: 'https',
+				hostname: '*.amazonaws.com',
+			},
 		],
 	},
 };

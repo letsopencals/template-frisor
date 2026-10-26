@@ -32,9 +32,12 @@ export function useProductData(
 	const variants: ProductListVariant[] = product?.variants ?? [];
 	const hasVariants = variants.length > 0;
 
-	// Default the selected variant to the first one, but let the caller override.
+	// Default the selected variant to the one whose slug matches the requested
+	// URL (falling back to the first), but let the caller override.
 	const [overrideVariantId, setSelectedVariantId] = useState<string | null>(null);
-	const selectedVariantId = overrideVariantId ?? variants[0]?.id ?? null;
+	const requestedVariantId =
+		variants.find((v) => v.slug === slug)?.id ?? variants[0]?.id ?? null;
+	const selectedVariantId = overrideVariantId ?? requestedVariantId;
 
 	const activeVariant: ProductListVariant | null = hasVariants
 		? variants.find((v) => v.id === selectedVariantId) || variants[0] || null

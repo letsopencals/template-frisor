@@ -1,4 +1,4 @@
-import type { AddOnListItemResponse as AddOn } from '@opencals/storefront-sdk';
+import type { AddOnListItemResponse } from '@opencals/storefront-sdk';
 
 /** Minimal shape shared by the various product/variant responses that carry imagery. */
 interface WithImages {
@@ -33,7 +33,7 @@ export function getProductImage(product: WithImages | undefined | null): string 
  * (the number of base-duration units the parent appointment spans).
  */
 export function computeAddOnLineTotal(
-	addOn: Pick<AddOn, 'price' | 'durationMultiplied'>,
+	addOn: Pick<AddOnListItemResponse, 'price' | 'durationMultiplied'>,
 	quantity: number,
 	durationUnits: number,
 ): number {

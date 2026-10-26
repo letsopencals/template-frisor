@@ -13,6 +13,7 @@ export async function POST(request: NextRequest) {
 		const { data } = await CheckoutService.start({
 			body,
 			headers: { Authorization: `Bearer ${token ?? ''}`, 'X-Cart-Id': cartId },
+			throwOnError: true,
 		});
 		return NextResponse.json(data);
 	} catch (err) {

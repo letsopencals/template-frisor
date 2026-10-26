@@ -10,10 +10,7 @@ export async function GET(request: NextRequest) {
 	const timezone = searchParams.get('timezone') ?? undefined;
 	const staffMemberId = searchParams.get('staffMemberId') ?? undefined;
 	const locationId = searchParams.get('locationId') ?? undefined;
-	// Reschedule: stops the appointment's own current slot from blocking itself
 	const excludeAppointmentId = searchParams.get('excludeAppointmentId') ?? undefined;
-	// Only accepted for custom-duration products; the API rejects it on fixed-length ones
-	const duration = searchParams.get('duration') ?? undefined;
 
 	if (!productId || !date) {
 		return NextResponse.json({ error: 'productId and date are required' }, { status: 400 });
@@ -22,7 +19,8 @@ export async function GET(request: NextRequest) {
 	try {
 		const { data } = await ProductService.getCurrentAvailabilities({
 			path: { productId },
-			query: { date, timezone, staffMemberId, locationId, excludeAppointmentId, duration },
+			// `excludeAppointmentId` (rescheduling) is accepted by the API but not yet typed in this SDK version
+			query: { date, timezone, staffMemberId, locationId, ...(excludeAppointmentId && { excludeAppointmentId }) },
 			throwOnError: true,
 		});
 		return NextResponse.json(data ?? []);

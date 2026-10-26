@@ -2,19 +2,20 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import useSWR from 'swr';
-import type { AddOnListItemResponse as AddOn, ProductListVariant } from '@opencals/storefront-sdk';
+import type { AddOnListItemResponse } from '@opencals/storefront-sdk';
 import { computeAddOnLineTotal } from '@/lib/format';
 import { fetcher } from '@/lib/fetcher';
 
 interface UseBookingAddOnsOptions {
-	activeVariant: ProductListVariant | null;
+	/** Variant slug, or null before a treatment is chosen. */
+	variantSlug: string | null;
 	locationId: string | null;
 	staffMemberId: string | null;
 	bookedDurationUnits: number;
 }
 
 interface UseBookingAddOnsResult {
-	availableAddOns: AddOn[];
+	availableAddOns: AddOnListItemResponse[];
 	addOnsLoading: boolean;
 	selectedAddOns: Map<string, number>;
 	addOnsTotal: number;
@@ -23,22 +24,22 @@ interface UseBookingAddOnsResult {
 }
 
 export function useBookingAddOns(options: UseBookingAddOnsOptions): UseBookingAddOnsResult {
-	const { activeVariant, locationId, staffMemberId, bookedDurationUnits } = options;
+	const { variantSlug, locationId, staffMemberId, bookedDurationUnits } = options;
 
 	const [selectedAddOns, setSelectedAddOns] = useState<Map<string, number>>(new Map());
 
 	// SWR keyed on variant + location + staff; dedupes and cancels stale responses.
-	const key = activeVariant?.slug
+	const key = variantSlug
 		? (() => {
 				const params = new URLSearchParams();
 				if (locationId) params.set('locationId', locationId);
 				if (staffMemberId) params.set('staffMemberId', staffMemberId);
 				const qs = params.toString() ? `?${params}` : '';
-				return `/api/products/${activeVariant.slug}/add-ons${qs}`;
+				return `/api/products/${variantSlug}/add-ons${qs}`;
 			})()
 		: null;
 
-	const { data, isLoading } = useSWR<AddOn[]>(key, fetcher, {
+	const { data, isLoading } = useSWR<AddOnListItemResponse[]>(key, fetcher, {
 		revalidateOnFocus: false,
 		onSuccess: (fetched) => {
 			// Drop any selected add-ons that are no longer offered.

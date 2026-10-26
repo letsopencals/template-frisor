@@ -3,6 +3,9 @@ import { AppointmentService } from '@opencals/storefront-sdk';
 import { requireAuth } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { handleApiError } from '@/lib/api-error-handler';
+import { revalidateAvailability } from '@/lib/availability-server';
+import { publicPayload } from '@/lib/public-payload';
+import { withoutSecrets } from '@/lib/account-types';
 
 export async function PUT(
 	request: NextRequest,
@@ -20,9 +23,10 @@ export async function PUT(
 				slot: body.slot,
 				notifyCustomer: true,
 			},
-			headers: auth.headers,
+			headers: auth.headers, throwOnError: true,
 		});
-		return NextResponse.json(data);
+		revalidateAvailability(data?.productId);
+		return NextResponse.json(withoutSecrets(publicPayload(data)));
 	} catch (err) {
 		return handleApiError(err);
 	}

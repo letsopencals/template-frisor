@@ -6,7 +6,7 @@ import { handleApiError } from '@/lib/api-error-handler';
 export async function POST(request: NextRequest) {
 	try {
 		const body = await request.json();
-		await AuthService.signUp({ body });
+		await AuthService.signUp({ body, throwOnError: true });
 		return new NextResponse(null, { status: 204 });
 	} catch (err) {
 		return handleApiError(err);

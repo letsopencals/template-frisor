@@ -2,20 +2,28 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { CartResponse as Cart } from '@opencals/storefront-sdk';
+import type { CartWithDiscounts } from '@/types/discount';
 import { useCartExpiry } from '@/hooks/use-cart-expiry';
 
 const CART_ID_KEY = '@opencals/cart';
 
+export interface DiscountCodeError {
+	code: string;
+	message?: string;
+}
+
 interface CartContextValue {
-	cart: Cart | null;
+	cart: CartWithDiscounts | null;
 	cartId: string | null;
 	loading: boolean;
+	/** True once the stored cart id has been read from localStorage (client mount). Gate "no cart" redirects on it. */
+	isLoaded: boolean;
 	/** Time remaining in seconds (null if no expiration) */
 	timeRemaining: number | null;
 	/** Fetch or create cart */
 	refreshCart: () => Promise<void>;
 	/** Set cart after booking (saves ID to localStorage) */
-	setCart: (cart: Cart) => void;
+	setCart: (cart: Cart | CartWithDiscounts) => void;
 	/** Remove an item from cart */
 	removeItem: (itemId: string) => Promise<void>;
 	/** Update an add-on item's quantity */
@@ -26,6 +34,14 @@ interface CartContextValue {
 	extendCart: () => Promise<void>;
 	/** Clear cart state (after checkout) */
 	clearCart: () => void;
+	/** Apply a promo/discount code */
+	applyDiscountCode: (code: string) => Promise<boolean>;
+	/** Remove the applied discount code */
+	removeDiscountCode: () => Promise<void>;
+	/** Current discount code error, if any */
+	discountCodeError: DiscountCodeError | null;
+	/** Clear the discount code error */
+	clearDiscountCodeError: () => void;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -41,10 +57,12 @@ function getCartHeaders(cartId: string | null): Record<string, string> {
 }
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-	const [cart, setCartState] = useState<Cart | null>(null);
+	const [cart, setCartState] = useState<CartWithDiscounts | null>(null);
 	const [cartId, setCartId] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
+	const [isLoaded, setIsLoaded] = useState(false);
 	const timeRemaining = useCartExpiry(cart?.expiresAt);
+	const [discountCodeError, setDiscountCodeError] = useState<DiscountCodeError | null>(null);
 
 	// Load cart ID from localStorage on mount
 	useEffect(() => {
@@ -52,6 +70,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 		if (stored) {
 			setCartId(stored);
 		}
+		setIsLoaded(true);
 	}, []);
 
 	// Fetch cart when cartId changes
@@ -64,8 +83,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 				if (res.ok) {
 					const data = await res.json();
 					setCartState(data);
-				} else {
-					// Cart expired or not found — clear
+				} else if (res.status === 404 || res.status === 410 || res.status === 400) {
+					// Cart expired or not found — clear. Transient 5xx keeps the held visits.
 					localStorage.removeItem(CART_ID_KEY);
 					setCartId(null);
 					setCartState(null);
@@ -91,13 +110,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 		}
 	}, [cartId]);
 
-	const setCart = useCallback((newCart: Cart) => {
+	const setCart = useCallback((newCart: Cart | CartWithDiscounts) => {
 		const id = newCart.id;
 		if (id) {
 			localStorage.setItem(CART_ID_KEY, id);
 			setCartId(id);
 		}
-		setCartState(newCart);
+		setCartState(newCart as CartWithDiscounts);
 	}, []);
 
 	const removeItem = useCallback(
@@ -158,11 +177,52 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 		setCartState(null);
 	}, []);
 
+	const applyDiscountCode = useCallback(
+		async (code: string): Promise<boolean> => {
+			setDiscountCodeError(null);
+			try {
+				const res = await fetch('/api/cart/discount-code', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json', ...getCartHeaders(cartId) },
+					body: JSON.stringify({ code }),
+				});
+				if (res.ok) {
+					setCartState(await res.json());
+					return true;
+				} else {
+					const data = await res.json();
+					setDiscountCodeError({ code: data.code ?? 'CODE_NOT_FOUND', message: data.error ?? data.message });
+					return false;
+				}
+			} catch {
+				setDiscountCodeError({ code: 'CODE_NOT_FOUND', message: 'Failed to apply code' });
+				return false;
+			}
+		},
+		[cartId],
+	);
+
+	const removeDiscountCode = useCallback(async () => {
+		setDiscountCodeError(null);
+		const res = await fetch('/api/cart/discount-code', {
+			method: 'DELETE',
+			headers: getCartHeaders(cartId),
+		});
+		if (res.ok) {
+			setCartState(await res.json());
+		}
+	}, [cartId]);
+
+	const clearDiscountCodeError = useCallback(() => {
+		setDiscountCodeError(null);
+	}, []);
+
 	const value = useMemo<CartContextValue>(
 		() => ({
 			cart,
 			cartId,
 			loading,
+			isLoaded,
 			timeRemaining,
 			refreshCart,
 			setCart,
@@ -171,11 +231,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 			removeAddOnItem,
 			extendCart,
 			clearCart,
+			applyDiscountCode,
+			removeDiscountCode,
+			discountCodeError,
+			clearDiscountCodeError,
 		}),
 		[
 			cart,
 			cartId,
 			loading,
+			isLoaded,
 			timeRemaining,
 			refreshCart,
 			setCart,
@@ -184,6 +249,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 			removeAddOnItem,
 			extendCart,
 			clearCart,
+			applyDiscountCode,
+			removeDiscountCode,
+			discountCodeError,
+			clearDiscountCodeError,
 		],
 	);
 

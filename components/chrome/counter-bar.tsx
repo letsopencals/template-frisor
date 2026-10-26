@@ -11,7 +11,6 @@ import { PriceBoard } from '@/components/chrome/price-board';
 import { RunningTab } from '@/components/chrome/running-tab';
 import { NAV, type BoardFacts } from '@/lib/nav';
 import { tabOf } from '@/lib/tab';
-import '@/styles/counter.css';
 
 /**
  * The Counter bar (DESIGN.md "Navigation model"): fixed at the bottom on every screen size,

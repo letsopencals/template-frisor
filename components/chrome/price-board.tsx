@@ -36,8 +36,8 @@ export function PriceBoard({ open, onClose, facts }: { open: boolean; onClose: (
 				aria-label="Site menu"
 				inert={!open}
 				className={clsx(
-					'board fixed inset-x-0 z-[45] mx-auto max-w-xl px-5 pb-6 pt-5 transition-transform duration-500 ease-[var(--ease-chair)]',
-					open ? 'translate-y-0' : 'translate-y-[110%]',
+					'board fixed inset-x-0 z-[45] mx-auto max-w-xl px-5 pb-6 pt-5 transition-[transform,visibility] duration-500 ease-[var(--ease-chair)]',
+					open ? 'visible translate-y-0' : 'invisible translate-y-[110%]',
 				)}
 				style={{ bottom: 'var(--counter-pad)' }}
 			>

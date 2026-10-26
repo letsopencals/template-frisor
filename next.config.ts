@@ -1,6 +1,12 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+	async redirects() {
+		return [
+			{ source: '/menu', destination: '/services', permanent: true },
+			{ source: '/apothecary', destination: '/shelf', permanent: true },
+		];
+	},
 	images: {
 		// Serve images as-is. Vercel's Image Optimization has a monthly quota (Hobby: 5,000
 		// transformations), and once it's used up every new image returns 402 and renders blank.

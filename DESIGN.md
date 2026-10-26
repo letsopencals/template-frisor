@@ -1,84 +1,153 @@
-# Frisør: design contract ("Barber & Apothecary")
+# Frisør: design contract (v2, "The House & the Shelf")
 
-Frisør is a premium Berlin barbershop with three shops and a retail shelf. The site should feel like
-walking in off Torstraße at dusk: bottle-green lacquer, brass, walnut, a steaming towel, gold-leaf
-lettering on the window, and a shelf of things you'll want to take home. Read this before touching UI.
+Frisør is a premium Berlin barbershop: three shops, thirteen barbers and an apothecary shelf of
+things they use at the chair. The site should feel like the best barber + apothecary brand in the
+city: calm, confident and well printed. Big editorial photography, a classic serif, generous paper,
+fine engraved rules, and a booking flow anyone can finish in under a minute.
 
-## The objects the design is built from
+Read this before touching UI. The usability rules at the bottom are binding.
 
-| Object in the shop | Becomes on the site |
-|---|---|
-| Gold-leaf lettering on the shop window | The hero wordmark and big headings (`.gilt`: brass gradient fill, dark keyline) |
-| The clipper guard comb (No. 0, ½, 1, 1½, 2, 3, 4) | Section index and the dividing rule (`<GuardRule>`). Sections are numbered by guard, not 01/02/03 |
-| The counter and the till | Navigation: the **Counter bar**, fixed at the *bottom* on every screen size, with the running tab |
-| The station mirror and the wall clock | Booking: **the Mirror Dial**, free times as brass notches around the barber's mirror |
-| Towel tags hung on a rail | The day picker |
-| The apothecary wall | **The Shelf**: retail upsell in booking, checkout, thank-you, account and `/apothecary` |
-| The barber's docket (a paper chit on a spike) | Checkout: one long paper docket, perforated between sections |
-| The brass chair check (cloakroom-style token) | The confirmation artifact on thank-you and the next sitting in the account |
-| The regular's punch card | The account's visit history |
-| The barber pole | Live and holding states only (a moving oxblood/cream stripe) |
+## Concept
+
+A barbershop that is also an apothecary, art-directed like a printed house catalogue. Two
+materials carry the whole design:
+
+- **Paper** (warm cream, the page): menus, price lists, labels, forms. Ink-black type, hairline and
+  double engraved rules, small-caps labels, dot leaders between a name and its price.
+- **Bottle-green lacquer** (deep green bands): the shop itself. Full-bleed photography sits on it,
+  and so do the hero, the shop pages and the footer.
+
+Brass is the single accent (one primary action per view, the active state, the SHELF15 seal).
+
+Everything sellable is presented as an **apothecary label**: an oval cartouche or a framed label with
+a lot number ("No. 07"), the product name in the serif, one line of benefit, the price. Services get
+the same label treatment on the menu, which ties the chair and the shelf together.
 
 ## Palette (tokens in `app/globals.css`)
 
-- `lacquer` #18211F (page), `lacquer-2` #1F2A27, `felt` #273531 (raised), `line` #3A4A45
-- `brass` #C49A58, `brass-hi` #E7CB8E, `brass-lo` #8A6631
-- `towel` #F2ECDF (paper), `towel-2` #E5DCC8, `ink` #161D1B (text on paper)
-- `oxblood` #7C2D29 (barber pole, "taken", destructive), `steel` #97A39E (muted text on lacquer)
-
-Dark lacquer is the default; cream paper is used for things you hold: the menu card, the docket, the
-regular's card, product labels.
+- `paper` #F3EEE4 (page), `paper-2` #EAE3D5 (raised paper, hovers), `paper-3` #DCD2BF (rules on paper)
+- `ink` #17201C (text), `ink-2` #4B544F (secondary), `ink-3` #7D837D (muted)
+- `green` #1E3A2F (lacquer bands, primary buttons), `green-2` #162C23 (deeper), `green-hi` #2C5242
+- `brass` #B28A4C (accent, active), `brass-hi` #D7B57A (on green), `brass-lo` #8C6A33
+- `oxblood` #7A2E2A (errors, "taken", destructive only)
 
 ## Type
 
-- **Big Shoulders Display** (600–900): signage. Uppercase, tight, for the wordmark, section signs,
-  times and big numbers.
-- **Gloock**: the engraved serif for names, prices and quotes. Roman only. **No italic accent words.**
-  Emphasis is a brass keyline (`.keyline`) or a switch to `.gilt`.
-- **Schibsted Grotesk**: UI and body. Tabular numerals for money.
+- **Libre Caslon Display**: headlines, prices on labels, the wordmark. Roman only, never an italic
+  accent word in colour (that's Clarity/HAAR). Big, tight, sentence case.
+- **Libre Caslon Text**: product and service names at reading size, numbers on the appointment card.
+- **Manrope**: UI, body, buttons, slot times (tabular numerals). Small-caps labels are Manrope
+  uppercase at 0.7rem with 0.16em tracking (`.label`).
 
-## Shape
+## Shape and detail
 
-- Buttons are **chamfered tags** (`.tag-btn`, clipped corners via `clip-path`), never pills or plain
-  rectangles with radius. Primary = brass on lacquer, secondary = brass keyline.
-- Cards on lacquer have a 1px `line` border and square corners. Paper elements have a deckled or
-  perforated edge (`.perf`, `.deckle`).
-- Photos sit in **round brass-ringed mirrors** (barbers) or full-bleed with a vignette (shop).
+- Buttons are **square-cornered rectangles with a 1px inner keyline** (`.btn`, a 3px inset
+  double border on the primary). No pills, no chamfers, no offset shadows.
+- Rules: `.rule` (hairline), `.rule-double` (two hairlines 3px apart, the engraved look).
+- Price lists use dot leaders (`.leader`).
+- Photos are rectangular, full-bleed or in tall 4:5 frames, with a thin paper inset frame on
+  barber portraits. No circles, no mirrors, no arches.
+- Radius: 2px on inputs, 0 elsewhere.
 
 ## Motion
 
-- **Swivel**: blocks turn in around their vertical axis (rotateY 14° → 0, `.swivel`, IntersectionObserver
-  adds `is-in`), like a chair turning to face you. Once, no stagger cascades.
-- **Pole**: the barber-pole stripe (`.pole`) moves while something is held or loading.
-- **Steam**: SVG wisps rise over hot-towel moments (`<Steam>`).
-- **Strop**: link underlines run out and back once on hover, like a razor on a strop (`.strop`).
-- **Into the kit**: adding a shelf product flies a ghost of it into the Counter bar's tab.
-- **Dial hand**: the mirror's clock hand turns to the chosen time.
-- Everything respects `prefers-reduced-motion` (no movement, content visible).
+Subtle and functional only: 150–250 ms colour/opacity transitions on hover and selection, a short
+cross-fade between booking steps, a gentle image zoom (1.03) on hover of photo cards. No scroll-driven
+animation, no parallax, no marquees, no reveal-on-scroll. `prefers-reduced-motion` turns it all off.
+
+## Page composition
+
+- **Header** (sticky, paper): wordmark left; Services, Barbers, Shops, The Shelf centred; account,
+  "Your booking" (when a chair is held) and the green **Book a chair** button right. A slim green
+  strip above it says which shops are open now. Phones: wordmark, Book button, menu button that opens
+  a full-height sheet.
+- **Home**: a full-bleed photographic hero on green with a large Caslon headline and one CTA; then a
+  printed price list (two columns, dot leaders, "Book" on each row); the barbers as a tall photo
+  row; The Shelf as a row of apothecary labels; the three shops as large photo panels with hours.
+- **Footer**: green, three shop addresses with hours, contact, small print.
+
+## The booking flow (`/book`)
+
+Three short steps, each fitting one screen, with **"Your chair"** (a summary panel: shop, service,
+barber, time, shelf lines, running total and the primary button) always in view: a sticky right
+column on desktop, a compact bar fixed to the bottom on phones (tap to expand the details).
+
+1. **Shop & service.** The three shops as tabs at the top (default: the last one used, else the
+   first). Below, the menu for that shop as rows (name, length, from-price). Tapping a service with
+   options opens them inline under it; choosing an option moves on to step 2.
+2. **Barber & time.** A row of barber portraits, "Any available" first and selected by default. The
+   date strip sits directly above the time slots; the first day with free times is selected. Slots
+   are plain buttons grouped Morning / Afternoon / Evening. Choosing a time updates the panel and
+   enables "Continue".
+3. **The Shelf.** "Pairs with your Skin Fade": three products first, then the rest of the shelf as
+   labels with a photo, price, one-line benefit and a one-tap Add (becomes a stepper). The SHELF15
+   seal says 15% comes off anything from the shelf, applied automatically. "Skip the shelf" sits next
+   to "Continue to details". Leaving this step holds the chair and opens checkout.
+
+## Checkout (`/checkout`)
+
+Conventional two columns. Left: **Contact** (email first, "Been here before? Sign in with a code"
+inline, name, phone), then **Payment** (provider choice, Stripe card). Right: the order as a printed
+**house receipt**: each sitting, the shelf lines with steppers, a last-chance shelf row (two
+products), the discount-code field, totals. Phones: the receipt collapses into a "Show order ·
+€58" toggle at the top, and the pay button is the last thing in the form.
+
+## Thank-you (`/thank-you`)
+
+The signature artifact is **the appointment label**: a cream apothecary label with a double rule,
+an oval cartouche holding the time, and the lot line "No. 0427 · Station with Theo · Mitte". Beside
+it, a plain scannable list (When, Where with directions, Barber, Set aside at the chair, Paid), then
+Add to calendar (.ics and Google), Directions, Manage booking. Below: "Restock at your next visit"
+and "Book the next one around 24 Nov".
+
+## Account (`/account`)
+
+Tabs: Visits, Orders, Profile. The next visit on top with Manage / Reschedule / Cancel; past visits
+as a list with **Book again** on each row; "Your shelf" shows what you've bought with a restock link
+(`/book?kit=…`).
 
 ## How this differs from every other template
 
-| | Frisør | Siblings |
+| | Frisør v2 | Siblings |
 |---|---|---|
-| **Navigation model** | A fixed **bottom Counter bar** on every screen size (wordmark, links, running tab, "Take a chair"). No top header. The menu opens upward as a price board. | Top headers (HAAR, Clarity, NOIR, VOLT, Tensile, Fluently, Bali); Alba's left chart rail + bottom dock on phones only. |
-| **Section rhythm** | Lacquer and paper alternate; sections are numbered by **clipper guard** ("No. 1½ — The Shelf") and divided by the guard-comb rule. | Eyebrow pill → H2 → three cards; editorial arches (HAAR); transit diagrams (Alba). |
-| **Hero** | Shop-window **gilt lettering** over a full-bleed photo, plus a live "Chairs today" board per shop. | Split hero with chip + H1 + two pill CTAs + avatar stack. |
-| **Booking interaction** | **The Mirror Dial**: the barber's mirror with free times as brass notches on a clock ring, towel-tag days, an accessible time list under it, and **The Shelf** beside it. One page, three zones, no steps. | Step accordion + sticky summary; consultation-card composer (HAAR); hall map (VOLT); timetable (Tensile); chair-time track (Alba). |
-| **Checkout** | **The Docket**: one long perforated paper chit (sitting, shelf with steppers and "add to the docket", who's sitting, settle up), totals printed as a receipt. | Accordion + sticky summary card. |
-| **Confirmation artifact** | A **brass chair check** token with an engraved rim, plus "your kit is set aside at the till". | Tickets (several), flippable reminder card (Alba). |
-| **Account** | **The Regular's Card**: punched per completed sitting, a cadence line ("every 24 days, next due…"), the shelf you've bought with "restock". | Next booking as a ticket; Alba's recall ring + stamp passport. |
-| **Type** | Big Shoulders Display, Gloock, Schibsted Grotesk. | See the ban list in `CLAUDE.md`. |
-| **Motion** | Swivel, pole, steam, strop, into-the-kit, dial hand. | The shared kit (fade-up, parallax, marquee, magnetic, count-up, Lenis); Alba's gleam/aperture/flap. |
+| **Navigation** | Paper header with an "open now" green strip, centred nav, square green Book button with a keyline | HAAR/Clarity pill headers, NOIR's dark bar, VOLT's club switcher, Alba's chart rail + dock |
+| **Section rhythm** | Paper ↔ green lacquer bands; printed price lists with dot leaders; apothecary labels with lot numbers | Eyebrow pill → H2 → three cards; arches (HAAR); transit diagrams (Alba); timetable (Tensile) |
+| **Hero** | One full-bleed photograph, Caslon headline set large on green, a single square CTA | Split hero with chip + H1 + two pills + avatar stack |
+| **Booking** | Three screen-sized steps with the "Your chair" panel always in view; shop tabs + menu rows; barber portraits row; date strip directly above grouped slots; an apothecary shelf step | Step accordion (Clarity), consultation composer (HAAR), hall map (VOLT), timetable (Tensile), chair-time track (Alba) |
+| **Checkout** | Contact + payment on one page, the house receipt on the right with live shelf steppers and a last-chance row | Accordion + sticky summary card |
+| **Confirmation** | The appointment label: apothecary label with an oval cartouche time and a lot line | Tickets, Alba's flippable reminder card |
+| **Account** | Visits with one-click Book again, "Your shelf" restock | Next booking as a ticket; Alba's recall ring |
+| **Type** | Libre Caslon Display / Text, Manrope | See the ban list in the skill's `uniqueness.md` |
+| **Motion** | Colour and opacity only, step cross-fade | Shared motion kit, Alba's gleam/aperture/flap |
+
+## Usability rules (binding, Stan Oct 2026)
+
+Uniqueness comes from brand, typography, photography, composition and the confirmation artifact,
+**not** from inventing interaction patterns. A classic, obvious control beats a clever one.
+
+- A normal **top header**. "Book a chair" is visible on every page; so are the account and the held
+  booking. No bottom navigation bar on desktop.
+- In the booking flow, every choice sits next to the one after it. The date strip is directly above
+  the times. Times are plain, large buttons (min 44px tall). No dials, no decorative pickers, nothing
+  that looks clickable and isn't.
+- The primary action and the running total are **always visible without scrolling**, on desktop
+  (sticky panel) and phones (fixed bar). Choosing something advances or reveals the next choice in
+  view (scrolls it into view under the header when needed). No scroll ping-pong.
+- Skipping the shelf is one obvious button next to Continue.
+- Checkout reads instantly: labelled fields, one column of form, the order on the side.
+- Thank-you and account: the facts (when, where, who, what's set aside) are scannable in a list,
+  never only inside a decorative artifact.
+- Everything works at 390px wide with no horizontal scroll; tap targets ≥ 44px.
 
 ## Upselling rules
 
-- Retail lives in add-ons whose slug starts with `shelf-` (see `lib/shelf.ts`). In-chair extras
-  (hot towel finish, scalp massage…) are the other add-ons.
-- The shelf appears in booking (beside the dial), in the docket ("Add to the docket"), on thank-you
-  ("set aside at the till" + "restock next time"), in the account ("Your shelf"), on barber pages
-  ("What Theo uses") and on `/apothecary`.
-- Barbers' picks and "pairs with" come from `siteConfig`; prices, names and images always come from
-  the store.
-- `SHELF15` is applied automatically when the first shelf product lands in the cart, and the saving
-  is shown in the docket. Stores without that code just don't show a saving.
+- Retail lives in add-ons whose slug starts with `shelf-` (`siteConfig.shelf.prefix`). Other add-ons
+  are in-chair extras.
+- The shelf appears in: the booking step 3, the checkout receipt (steppers + last-chance row), the
+  thank-you ("set aside at the chair" + restock), the account ("Your shelf"), service rows on the
+  menu ("Pairs well with"), barber profiles ("What Theo uses"), home, and `/shelf`.
+- Pairs and notes come from `siteConfig`; names, prices and photos always from the store.
+- `SHELF15` (`siteConfig.shelf.autoCode`) is applied automatically when the chair is held with a
+  shelf product, or when the first one is added at checkout, and removed with the last one. A store
+  without that code just shows no saving.
 - Never fake scarcity, countdowns or reviews.

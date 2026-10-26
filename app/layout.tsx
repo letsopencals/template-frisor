@@ -1,23 +1,20 @@
 import type { Metadata, Viewport } from 'next';
-import { Big_Shoulders, Gloock, Schibsted_Grotesk } from 'next/font/google';
+import { Libre_Caslon_Display, Libre_Caslon_Text, Manrope } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import { Providers } from '@/components/providers';
-import { CounterBar } from '@/components/chrome/counter-bar';
-import { EnamelSign } from '@/components/chrome/enamel-sign';
-import { Colophon } from '@/components/chrome/colophon';
+import { SiteHeader } from '@/components/site/site-header';
+import { SiteFooter } from '@/components/site/site-footer';
 import { siteConfig } from '@/lib/site-config';
 import { getStoreSettings } from '@/lib/server-data';
 import { getCatalog } from '@/lib/catalog-server';
-import { money } from '@/lib/catalog';
-import type { BoardFacts } from '@/lib/nav';
 import './globals.css';
 
-const sign = Big_Shoulders({ subsets: ['latin'], weight: ['600', '700', '800', '900'], variable: '--font-sign-frisor', display: 'swap' });
-const serif = Gloock({ subsets: ['latin'], weight: '400', variable: '--font-serif-frisor', display: 'swap' });
-const sans = Schibsted_Grotesk({ subsets: ['latin'], variable: '--font-sans-frisor', display: 'swap' });
+const display = Libre_Caslon_Display({ subsets: ['latin'], weight: '400', variable: '--font-display-frisor', display: 'swap' });
+const serif = Libre_Caslon_Text({ subsets: ['latin'], weight: ['400', '700'], variable: '--font-serif-frisor', display: 'swap' });
+const sans = Manrope({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-sans-frisor', display: 'swap' });
 
 export const viewport: Viewport = {
-	themeColor: '#18211f',
+	themeColor: '#f3eee4',
 	viewportFit: 'cover',
 };
 
@@ -32,34 +29,22 @@ export const metadata: Metadata = {
 	robots: { index: true, follow: true },
 };
 
-/*
- * Root layout: fonts, providers, the enamel sign on top, the page, the colophon and the
- * Counter bar fixed at the bottom (DESIGN.md). Body pads by the bar's height.
- */
+/** Root layout: fonts, providers, the sticky paper header, the page and the green footer (DESIGN.md). */
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
 	const [initialSettings, catalog] = await Promise.all([getStoreSettings(), getCatalog()]);
-	const from = catalog.services.length ? Math.min(...catalog.services.map((s) => s.price)) : null;
-	const facts: BoardFacts = {
-		'/menu': from !== null ? `from ${money(from, catalog.currency)}` : undefined,
-		'/barbers': catalog.barbers.length ? `${catalog.barbers.length} chairs` : undefined,
-		'/shops': catalog.shops.length ? `${catalog.shops.length} doors` : undefined,
-		'/apothecary': catalog.shelf.length ? `${catalog.shelf.length} jars` : undefined,
-		'/account': 'sign in',
-	};
 
 	return (
-		<html lang="en" className={`${sign.variable} ${serif.variable} ${sans.variable}`} suppressHydrationWarning>
+		<html lang="en" className={`${display.variable} ${serif.variable} ${sans.variable}`} suppressHydrationWarning>
 			<body>
-				<a href="#main" className="sr-only-focusable fixed left-4 top-4 z-[80] bg-towel px-4 py-2 text-ink">
+				<a href="#main" className="sr-only-focusable fixed left-4 top-4 z-[80] bg-paper px-4 py-2 text-ink">
 					Skip to content
 				</a>
 				<Providers initialSettings={initialSettings}>
-					<EnamelSign shops={catalog.shops.map((s) => s.short)} />
+					<SiteHeader shops={catalog.shops.map((s) => ({ slug: s.slug, short: s.short }))} />
 					<main id="main" className="min-h-[70svh]">
 						{children}
 					</main>
-					<Colophon shops={catalog.shops} />
-					<CounterBar facts={facts} />
+					<SiteFooter shops={catalog.shops} />
 				</Providers>
 				<Analytics />
 				<script

@@ -47,7 +47,7 @@ export function SiteHeader({ shops }: { shops: { slug: string; short: string }[]
 		<header className="sticky top-0 z-50">
 			<OpenStrip shops={shops} />
 			<div className="border-b border-paper-3 bg-paper/95 backdrop-blur supports-[backdrop-filter]:bg-paper/85">
-				<div className="mx-auto flex h-[64px] max-w-[1440px] items-center gap-6 px-4 sm:px-6 lg:h-[72px] lg:px-10">
+				<div className="mx-auto flex h-[64px] max-w-[1440px] items-center gap-3 px-4 sm:gap-6 sm:px-6 lg:h-[72px] lg:px-10">
 					<Link href="/" aria-label="Frisør, home" className="shrink-0">
 						<Wordmark />
 					</Link>

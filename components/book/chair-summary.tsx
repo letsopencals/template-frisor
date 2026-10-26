@@ -52,9 +52,9 @@ export function ChairSummary({ b, currency, primary, onEdit, secondary, hideActi
 	const who = b.barber?.name ?? (at && b.finalBarber ? `${b.finalBarber.name} (first free)` : 'Any barber');
 
 	return (
-		<div className="apoth p-5">
+		<div className={hideAction ? 'apoth p-5' : 'apoth flex max-h-[calc(100svh-var(--header-h)-40px)] flex-col p-5'}>
 			<p className="label text-brass-lo">Your chair</p>
-			<dl className="mt-1 divide-y divide-paper-3">
+			<dl className="no-scrollbar mt-1 min-h-0 flex-1 divide-y divide-paper-3 overflow-y-auto">
 				<Row label="Shop" onEdit={() => onEdit(1)}>
 					{b.shop?.title ?? '—'}
 				</Row>

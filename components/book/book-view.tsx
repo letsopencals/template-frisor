@@ -11,7 +11,7 @@ import { ChairSummary, type BookStep, type PrimaryAction } from '@/components/bo
 import { MobileBar } from '@/components/book/mobile-bar';
 
 const TITLES: Record<BookStep, { title: string; line: string }> = {
-	1: { title: 'Choose a shop and a service', line: 'Three shops, one menu. Prices include VAT.' },
+	1: { title: 'Choose a shop and a service', line: 'Three shops, one menu, the same prices.' },
 	2: { title: 'Choose your barber and a time', line: 'Any barber gets you the most times. Times are in Berlin time.' },
 	3: { title: 'Anything from the shelf?', line: 'Packed and waiting at your station when you sit down. Or skip it.' },
 };

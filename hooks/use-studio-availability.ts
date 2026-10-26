@@ -38,6 +38,7 @@ export function invalidateStudioAvailability() {
 export function useStudioAvailability(variantId: string | null | undefined, locationIds: string[]) {
 	const ids = locationIds.join(',');
 	const key = variantId && ids ? ['studio-availability', variantId, ids, generation] : null;
+	const hasKey = key !== null;
 	const { data, isLoading, mutate } = useSWR(
 		key,
 		async ([, v, list]: [string, string, string, number]) => {
@@ -50,12 +51,12 @@ export function useStudioAvailability(variantId: string | null | undefined, loca
 	return useMemo(
 		() => ({
 			byLocation: (data ?? {}) as Record<string, StudioAvailability | null | undefined>,
-			loading: !!key && isLoading,
+			loading: hasKey && isLoading,
 			refresh: () => {
 				invalidateStudioAvailability();
 				return mutate();
 			},
 		}),
-		[data, key, isLoading, mutate],
+		[data, hasKey, isLoading, mutate],
 	);
 }

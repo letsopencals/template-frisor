@@ -61,4 +61,4 @@ export function googleCalendarHref(e: CalendarEvent): string {
 }
 
 /** File name for the .ics download. */
-export const ICS_FILENAME = `${siteConfig.name.toLowerCase()}-appointment.ics`;
+export const ICS_FILENAME = 'frisor-appointment.ics';

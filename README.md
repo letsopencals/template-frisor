@@ -1,12 +1,12 @@
-# Frisor — Next.js Barbershop Booking Template
+# Frisør — Next.js Barbershop & Apothecary Booking Template
 
 A production-ready booking website for modern barbershops. Built with **Next.js 15**, **Tailwind CSS v4**, and the **Opencals Storefront SDK**.
 
 **[View Live Demo →](https://template-frisor-sage.vercel.app)**
 
-![Frisor — the booking flow on mobile, end to end](docs/cover.png)
+![Frisør barbershop booking template on a laptop and a phone: choose your barber and a time](docs/cover.png)
 
-Dark editorial palette (deep green + gold), mobile-first booking flow inspired by native apps, and a full storefront — services, appointments, checkout, customer accounts — wired up out of the box. MIT licensed: clone it, rebrand it, ship it.
+Frisør is a premium Berlin barbershop with three shops, thirteen barbers and an apothecary shelf. Warm paper, bottle green and brass, big editorial photography, Libre Caslon and Manrope. The booking flow is deliberately classic: three short steps with your appointment and the total always in view, and the shop's retail products sold as part of the booking and picked up at the chair. MIT licensed: clone it, rebrand it, ship it.
 
 ---
 
@@ -14,7 +14,7 @@ Dark editorial palette (deep green + gold), mobile-first booking flow inspired b
 
 ### 1. Create an Opencals account
 
-Sign up at **[app.opencals.com](https://app.opencals.com)** and create a **Dev Store**. When prompted for a dataset, choose the **Barbershop / Frisor** preset — this seeds your store with the barber services, staff, and locations so your template looks exactly like the demo.
+Sign up at **[app.opencals.com](https://app.opencals.com)** and create a **Dev Store** in **Germany (EUR)**. When prompted for a dataset, choose **Frisør (barbershop)**. It seeds the three shops, thirteen barbers, the services, twelve shelf products (add-ons with the slug prefix `shelf-`) and the codes `SHELF15` and `FIRSTCHAIR`.
 
 ### 2. Get your API key
 
@@ -24,168 +24,105 @@ Go to your **User Account Settings** in the Opencals dashboard and generate a **
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fletsopencals%2Ftemplate-frisor&env=OPENCALS_API_KEY,AUTH_SECRET&envDescription=API%20key%20from%20your%20Opencals%20dashboard%20and%20a%20random%20secret%20for%20auth&project-name=frisor&repository-name=frisor)
 
-During deployment, Vercel will ask you to set environment variables:
-
 | Variable | Value |
 |----------|-------|
 | `OPENCALS_API_KEY` | Your private storefront key (starts with `spk_`) |
-| `AUTH_SECRET` | Any random string — used for session encryption |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | *(optional)* Stripe publishable key for payments |
-
-That's it. Once deployed, you'll have the same fully functional booking site as the [live demo](https://template-frisor-sage.vercel.app).
+| `AUTH_SECRET` | Any random string, used for session encryption |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | *(optional)* Stripe publishable key for card payments |
 
 ---
 
-## The Storefront
+## The booking flow
 
-An editorial homepage, a clear service menu, and a multi-location "shops" section — all driven by your Opencals data.
+Three steps, each one screen. **Your chair** (shop, service, barber, time, extras and the running total, with the Continue button) is a sticky panel on desktop and a bar at the bottom on phones, so the next action is always in view.
 
-![Homepage hero](docs/homepage-hero.png)
+1. **Shop & service.** The shops as tabs, then that shop's menu. Services with options (Standard, Skin Fade, Scissor Cut) open inline; choosing one moves on.
+2. **Barber & time.** Barber portraits with "Any barber" first, then the date strip directly above the day's free times, grouped Morning / Afternoon / Evening.
+3. **The Shelf.** Products that pair with the service first, in-chair extras, and "Skip the shelf". Anything added is packed and waiting at the station, and `SHELF15` (15% off retail) goes on by itself.
 
-![Services menu](docs/services.png)
+![Choose your barber and a time](docs/book-time.png)
 
-![Multi-location shops](docs/locations.png)
+![The Shelf step: products that pair with the service, with the running total](docs/booking-extras.png)
 
----
+Availability is one cached server request per service and shop across the whole booking window (`app/api/availability/studio`); days and times are derived in the browser.
 
-## What's Included
+## Checkout
 
-### Online Booking
-A single-page, card-stack booking flow inspired by native mobile apps: pick service → location → barber → date → time → confirm. Sticky bottom CTA on mobile, sticky summary rail on desktop.
+Contact details and payment on one page (sign in with an emailed code, or just type your email), with the order on the side as a house receipt: each appointment, the shelf products with steppers, a last-call row of two products, the discount-code field and the totals.
 
-![Booking flow with add-ons and live summary](docs/booking-extras.png)
+![Checkout with the house receipt](docs/checkout.png)
 
-### Add-Ons at Checkout
-Optional extras — hot towel finish, beard oil treatment, eyebrow trim, hair tonic & pomade style — add to the booking and update the live summary total in one transaction.
+## After booking
 
-### Service Variants
-Products can have multiple variants (e.g. "Classic Cut" → Standard, Scissor Cut, Skin Fade), each with their own pricing, duration, and assigned staff.
+The confirmation is an **appointment label** in the apothecary style, beside a plain list of the facts (when, where, barber, what's set aside at the chair, what to pay), with Add to calendar, Directions and Manage booking, then "Restock at your next visit" and "Book the next one".
 
-### Multi-Location Support
-Global location selector, staff filtered by location, and per-location availability across all three shops.
+![Thank-you page with the appointment label](docs/thank-you.png)
 
-### Checkout with Stripe
-Multi-step checkout with customer info, custom questions, and secure payment via Stripe Elements. Auto-login after checkout so the customer lands in their account with the new appointment.
+The account shows the next visit, past visits with **Book again**, "Your shelf" restock links, orders with receipts, and move/cancel within the shop's notice period.
 
-### Customer Accounts
-Sign in, view appointments, browse order history, manage profile, and reschedule or cancel appointments.
+![Customer account](docs/account-appointment.png)
 
-![Customer account — appointment detail](docs/account-appointment.png)
+## The storefront
 
-### Mobile-First Design
-Fully responsive. The booking page in particular is designed mobile-first — the iPhone booking flow shown at the top of this README is the live template, not a mockup.
+![Homepage](docs/homepage-hero.png)
 
-### SEO Ready
-Per-page metadata, Open Graph cards, robots.txt, and sitemap.xml — configured out of the box.
+![Services and prices](docs/services.png)
 
----
+![A shop](docs/locations.png)
 
-## Tech Stack
+![The Shelf](docs/the-shelf.png)
 
-| Category | Technology |
-|----------|-----------|
-| Framework | Next.js 15 (App Router) |
-| Styling | Tailwind CSS v4 |
-| Animations | Framer Motion |
-| Forms | react-hook-form + Zod |
-| Payments | Stripe Elements |
-| Auth | NextAuth.js v5 |
-| Dates | moment-timezone |
-| API | Opencals Storefront SDK |
+![A barber's page](docs/barber-profile.png)
+
+On a phone:
+
+<p>
+  <img src="docs/mobile-booking.png" alt="Booking on a phone" width="300" />
+  <img src="docs/mobile-thank-you.png" alt="Confirmation on a phone" width="300" />
+</p>
+
+`/preview/thank-you` and `/preview/account` render the post-booking screens with sample data from your own store, for design work without making bookings.
 
 ---
 
-## Local Development
+## Selling retail with a booking
 
-```bash
-git clone <repository-url>
-cd frisor-barbershop-template
-npm install
-cp .env.example .env
-```
-
-Edit `.env` with your values:
-
-```
-OPENCALS_API_KEY=spk_your_key_here
-AUTH_SECRET=change_me_to_a_random_string
-```
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000).
+The Storefront API has no separate retail checkout, so the shelf is modelled as **add-ons**: any add-on whose slug starts with `shelf-` (`siteConfig.shelf.prefix`) is a product you pick up at the chair. They're offered in booking step 3, at checkout, on service pages ("pairs well with"), on barber pages ("what Theo uses"), on `/shelf` and on the thank-you and account pages ("restock at your next visit" links to `/book?kit=<slugs>`). Names, prices and photos come from the store; the pairings and how-to notes live in `lib/site-config.ts`.
 
 ---
 
 ## Customization
 
-### Branding & Content
-
-All barbershop-specific copy is centralized in **`lib/site-config.ts`**:
-
-- Shop name, tagline, logo wordmark
-- Homepage hero text, stats, mission tiles, testimonials
-- About page story, team members, values
-- Contact information (address, phone, email, hours)
-- Footer links and social media
-
-Edit this single file to rebrand the entire template.
-
-### Theme Colors
-
-Design tokens live in **`app/globals.css`** as Tailwind v4 `@theme` properties:
-
-```css
-@theme {
-  --color-bg: #0F1B17;           /* near-black green */
-  --color-surface: #1E2E29;      /* card / panel green */
-  --color-surface-2: #2A3F3A;    /* elevated panel */
-  --color-cream: #EFE9DA;        /* warm off-white text */
-  --color-gold: #E8B547;         /* primary CTA gold */
-  --font-display: 'Fraunces', 'Playfair Display', Georgia, serif;
-  --font-body: 'Inter', system-ui, sans-serif;
-}
-```
-
-### Imagery
-
-Drop hero, gallery, team, and service images into `public/images/{hero,gallery,team,services,about}/`. See **`public/PLACEHOLDERS.md`** for required filenames and recommended dimensions.
-
-### Adding Pages
-
-1. Create `app/your-page/page.tsx`
-2. Add a `layout.tsx` with metadata
-3. Add the link to `navLinks` in `components/layout/header.tsx`
-
----
+- **Copy and the editorial layer:** `lib/site-config.ts` (shop notes, barber bios, shelf notes and pairings, hours, policies). Everything bookable comes from the store.
+- **Design tokens:** `app/globals.css` (`@theme`: paper, ink, green, brass; `.btn`, `.field`, `.choice`, `.apoth` classes). Read `DESIGN.md` before changing the UI.
+- **Fonts:** `app/layout.tsx` (Libre Caslon Display, Libre Caslon Text, Manrope via `next/font`).
 
 ## Project Structure
 
 ```
 app/
-  page.tsx                    # Homepage
-  services/page.tsx           # Service listing
-  booking/[slug]/page.tsx     # Card-stack booking page
-  checkout/page.tsx           # Multi-step checkout
-  thank-you/page.tsx          # Post-checkout confirmation
-  about/                      # About page
-  contact/                    # Contact form + info
-  account/                    # Customer dashboard
-  auth/                       # Sign in, sign up, password reset
-  api/                        # API routes proxy SDK calls server-side
-
+  page.tsx                 # Home
+  services/ barbers/ shops/ shelf/
+  book/                    # Three-step booking
+  checkout/ thank-you/
+  account/                 # Visits, visit detail (move/cancel), orders, profile
+  auth/ link/[token]/      # Code sign-in, password, magic links
+  preview/[screen]/        # Post-booking screens with sample data
+  api/                     # Server routes that call the SDK
 components/
-  layout/{header,footer}.tsx  # Site chrome
-  home/                       # Hero, stats band, services, gallery, mission, testimonials, banner
-  booking/                    # Date picker, time slots, staff/location selectors
-  checkout/                   # Multi-step form components
-  cart/cart-drawer.tsx
+  site/ home/ services/ barbers/ shops/ shelf/
+  book/ checkout/ confirmation/ account/ auth/ ui/
+contexts/ hooks/ lib/      # cart, checkout, availability, catalogue, auth
+```
 
-contexts/                     # cart, checkout, location, timezone
-hooks/                        # use-api-request, use-form-submit, use-date-formatter
-lib/                          # site-config, opencals (SDK), auth (NextAuth), schemas, format, utils
+## Local Development
+
+```bash
+git clone https://github.com/letsopencals/template-frisor.git
+cd template-frisor
+npm install
+cp .env.example .env.local   # OPENCALS_API_KEY, AUTH_SECRET
+npm run dev
 ```
 
 ## Environment Variables

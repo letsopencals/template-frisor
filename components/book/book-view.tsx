@@ -65,8 +65,13 @@ export function BookView({ services, barbers, shops, shelf, sections, currency, 
 
 	return (
 		<div className="mx-auto max-w-[1440px] px-4 pb-32 pt-4 sm:px-6 lg:px-10 lg:pb-20">
-			<div ref={top} className="scroll-mt-[calc(var(--header-h)+8px)]">
+			<div ref={top} className="flex scroll-mt-[calc(var(--header-h)+8px)] items-center justify-between gap-4 lg:max-w-[calc(100%-360px-2.5rem)] xl:max-w-[calc(100%-380px-3.5rem)]">
 				<StepHeader step={step} reached={reached} onGo={go} />
+				{step > 1 ? (
+					<button type="button" onClick={() => setStep((step - 1) as BookStep)} className="link min-h-[44px] shrink-0 text-sm text-ink-2">
+						← Back
+					</button>
+				) : null}
 			</div>
 			<div className="mt-2 grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_380px] xl:gap-14">
 				<section aria-labelledby="book-step-title" className="min-w-0">
@@ -77,11 +82,6 @@ export function BookView({ services, barbers, shops, shelf, sections, currency, 
 							</h1>
 							<p className="mt-1 text-sm text-ink-2">{t.line}</p>
 						</div>
-						{step > 1 ? (
-							<button type="button" onClick={() => setStep((step - 1) as BookStep)} className="link min-h-[44px] text-sm text-ink-2">
-								← Back
-							</button>
-						) : null}
 					</div>
 					<div key={step} className="fade-in pt-6">
 						{step === 1 ? <StepShopService shops={shops} shop={b.shop} onShop={b.chooseShop} menu={b.menu} sections={sections} selected={b.service} onChoose={chooseService} currency={currency} /> : null}

@@ -59,19 +59,16 @@ payment / fulfillment / refund) all live in `components/ui/status-badge.tsx` as 
 `StatusBadge` primitive (status → `{bg,text,label}` map) plus typed per-domain
 wrappers, instead of being redefined in each account/order page.
 
-**Use the shared UI primitives — don't hand-style buttons/inputs inline.**
-- `components/ui/button.tsx` — `<Button variant size fullWidth>`. Variants:
-  `primary` (gold CTA), `accent` (copper booking CTA), `outline`, `ghost`. Sizes
-  `sm|md|lg`. All buttons are pills (`rounded-full`) — this is the canonical shape;
-  don't reintroduce square or ad-hoc-radius buttons. Pass only layout classes
-  (`mt-*`, `flex-1`, `gap-*`) via `className`; color/padding/rounding/tracking come
-  from the variant/size.
-- `components/ui/input.tsx` — `<Input>` / `<Textarea>` for text fields.
-- Leave genuinely-different controls inline: selection/toggle chips with an
-  active/selected state (staff/time/variant/location pickers, step indicator),
-  destructive buttons (no destructive variant), `<select>`, checkboxes/radios,
-  icon-only controls, and navigation rendered as `next/link` `<Link>` (Button
-  renders a `<button>` and has no anchor mode).
+**Use the shared style primitives — don't hand-style buttons/inputs inline.** Frisør's
+primitives are CSS classes in `app/globals.css` (see `DESIGN.md`):
+- `.btn` + `.btn-primary` (green, the one main action per view), `.btn-brass` (on green),
+  `.btn-outline`, `.btn-outline-light`; sizes `.btn-sm` / `.btn-lg`. Square corners with a keyline;
+  no pills. Works on `<button>`, `<a>` and `<Link>`.
+- `.field` for inputs/textareas; `.choice` for selectable tiles (slots, days, barbers, shops,
+  options) with the state on `aria-checked` / `aria-pressed`; `.apoth` for apothecary-label cards;
+  `.label`, `.display`, `.serif`, `.leader`, `.rule-double` for type and rules.
+- Shared components: `components/ui/stepper.tsx`, `components/shelf/shelf-label.tsx` (interactive
+  product card), `components/shelf/shelf-tile.tsx` (static), `components/site/page-head.tsx`.
 
 **Hooks are single-concern.** Split multi-purpose hooks so each has one
 responsibility and independent dependencies (see `hooks/use-checkout-questions.ts`,
@@ -94,7 +91,7 @@ composes the smaller ones (`hooks/use-booking-flow.ts`).
 ## Bundle
 
 - Load heavy / below-the-fold components with `next/dynamic`. Stripe is loaded
-  this way in `components/booking/booking-view.tsx` (`PaymentStep`, `ssr: false`)
+  this way in `components/checkout/payment-section.tsx` (`StripePayment`, `ssr: false`)
   so it isn't in the initial bundle.
 - Import directly from module paths; avoid barrel/index re-export files that pull
   in more than you use.
@@ -103,6 +100,7 @@ composes the smaller ones (`hooks/use-booking-flow.ts`).
 
 - `npm run build` must pass. In the route summary, read-only pages should be `○`
   (static) or `ƒ` (dynamic) Server Components — not shipped as pure client pages.
-- Smoke test: services list paints with no spinner on first load; location filter
-  updates via SWR; the full booking flow (service → time → details → payment)
-  completes.
+- Smoke test: services paint with no spinner on first load; `/book` shop → service →
+  barber/time → shelf → checkout → thank-you completes, at 1440 and 390 wide, with the
+  "Your chair" panel / phone bar (total + Continue) always in view. Post-booking screens:
+  `/preview/thank-you`, `/preview/account`.

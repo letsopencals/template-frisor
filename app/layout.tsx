@@ -47,6 +47,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 					<SiteFooter shops={catalog.shops} />
 				</Providers>
 				<Analytics />
+				{/* Lets the opencals.com template gallery scroll this site inside its preview iframe. */}
+				<script
+					dangerouslySetInnerHTML={{
+						__html: `window.addEventListener("message",function(e){if(e.data&&e.data.type==="scrollTo"&&e.data.id){var el=document.getElementById(e.data.id);if(el){var top=el.getBoundingClientRect().top+window.scrollY-100;window.scrollTo({top:top,behavior:"smooth"})}}if(e.data&&e.data.type==="scrollTop"){window.scrollTo({top:0,behavior:"smooth"})}});`,
+					}}
+				/>
 				<script
 					type="application/ld+json"
 					dangerouslySetInnerHTML={{

@@ -74,7 +74,7 @@ primitives are CSS classes in `app/globals.css` (see `DESIGN.md`):
 responsibility and independent dependencies (see `hooks/use-checkout-questions.ts`,
 `hooks/use-payment-providers.ts`, `hooks/use-cart-expiry.ts`, split out of the
 booking flow / cart context). A large hook may remain as a thin orchestrator that
-composes the smaller ones (`hooks/use-booking-flow.ts`).
+composes the smaller ones (`hooks/use-chair-booking.ts`).
 
 ## Re-render hygiene
 
@@ -84,7 +84,7 @@ composes the smaller ones (`hooks/use-booking-flow.ts`).
 - Hoist static objects (framer-motion `initial`/`animate`/`transition`, default
   non-primitive props) to module-level `const`s instead of recreating them inline.
 - `React.memo` leaf components that take stable props and render often
-  (e.g. `components/booking/step-indicator.tsx`).
+  (e.g. `components/book/step-header.tsx`).
 - Prefer a ternary (`cond ? <x/> : null`) over `cond && <x/>` for conditional
   rendering, to avoid accidentally rendering `0`/`''`.
 

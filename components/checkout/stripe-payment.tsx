@@ -5,7 +5,6 @@ import { type Appearance, type StripeElementsOptions, type StripeError, loadStri
 import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 
 
-const envPublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? '';
 
 // Paper fields, bottle-green focus, square corners (DESIGN.md).
 const INK = '#17201c';
@@ -63,7 +62,7 @@ const FONTS: StripeElementsOptions['fonts'] = [
 interface StripePaymentProps {
 	clientSecret: string;
 	stripeAccountId?: string | null;
-	/** Key returned by checkout start (matches the account's test/live mode); env is the fallback. */
+	/** Key returned by checkout start (matches the account's test/live mode). */
 	publishableKey?: string | null;
 	onSuccess: (paymentIntentId: string) => void;
 	onError: (message: string) => void;
@@ -84,7 +83,7 @@ export function StripePayment({
 	payLabel,
 	onProcessingChange,
 }: StripePaymentProps) {
-	const publishableKey = responseKey || envPublishableKey;
+	const publishableKey = responseKey;
 	const stripePromise = useMemo(() => {
 		if (!publishableKey) return null;
 		return loadStripe(publishableKey, { stripeAccount: stripeAccountId ?? undefined });
@@ -96,8 +95,7 @@ export function StripePayment({
 		return (
 			<div className="border border-oxblood/40 bg-oxblood/10 p-4" role="alert">
 				<p className="text-sm text-oxblood">
-					Card payments aren&rsquo;t set up yet. Set{' '}
-					<code className="bg-paper-2 px-1 py-0.5 text-xs">NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY</code> in your environment.
+					Card payments aren&rsquo;t set up for this store yet. Connect Stripe in the Opencals dashboard.
 				</p>
 			</div>
 		);

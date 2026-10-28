@@ -28,7 +28,6 @@ Go to your **User Account Settings** in the Opencals dashboard and generate a **
 |----------|-------|
 | `OPENCALS_API_KEY` | Your private storefront key (starts with `spk_`) |
 | `AUTH_SECRET` | Any random string, used for session encryption |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | *(optional)* Stripe publishable key for card payments |
 
 ---
 
@@ -131,7 +130,6 @@ npm run dev
 |----------|----------|-------------|
 | `OPENCALS_API_KEY` | Yes | Private storefront key (`spk_`) from your Opencals dashboard |
 | `AUTH_SECRET` | Yes | Random string for NextAuth session encryption |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | No | Stripe publishable key for payment processing |
 | `OPENCALS_API_URL` | No | Override API base URL (defaults to production) |
 | `NEXT_PUBLIC_BASE_URL` | No | Public site URL (for sitemap) |
 

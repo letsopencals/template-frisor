@@ -1,9 +1,17 @@
-import type { AppointmentDetailResponse } from '@opencals/storefront-sdk';
+import type { AppointmentDetailOrder, AppointmentDetailResponse } from '@opencals/storefront-sdk';
 import { isShelfSlug } from '@/lib/catalog';
 import { siteConfig } from '@/lib/site-config';
 import type { Sitting, SittingCharge } from '@/lib/sittings';
 
 /** Server-only: SDK appointment detail → public-safe `Sitting` (explicit allow-list). */
+
+/** The order carries no discount total: it's the sum of its line items' discounts, add-ons included. */
+function orderDiscount(order: AppointmentDetailOrder): number {
+	return (order.lineItems ?? []).reduce(
+		(sum, li) => sum + (li.totalDiscount ?? 0) + (li.addOnLineItems ?? []).reduce((s, ao) => s + (ao.totalDiscount ?? 0), 0),
+		0,
+	);
+}
 
 function chargeOf(detail: AppointmentDetailResponse): SittingCharge | null {
 	const order = detail.order ?? detail.orderLineItem?.order ?? null;
@@ -22,7 +30,7 @@ function chargeOf(detail: AppointmentDetailResponse): SittingCharge | null {
 		orderTotal: order.total,
 		paidTotal: order.paidTotal,
 		balance: order.balance,
-		totalDiscount: (order as { totalDiscount?: number }).totalDiscount ?? 0,
+		totalDiscount: orderDiscount(order),
 		paymentStatus: order.paymentStatus,
 		paymentDueAt: order.paymentDueAt ?? null,
 		providers,

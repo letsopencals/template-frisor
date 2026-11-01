@@ -30,6 +30,7 @@ function sittingOf(item: CartItem): Sitting | null {
 	return {
 		id: a.id,
 		status: 'scheduled',
+		pendingReason: null,
 		from: a.from,
 		to: a.to,
 		service: {

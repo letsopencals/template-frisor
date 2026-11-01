@@ -39,6 +39,8 @@ export async function GET() {
 		const sittings = details
 			.filter((d): d is AppointmentDetailResponse => !!d)
 			.map(toSitting)
+			// A pending appointment with no order is a cart hold, not a booking: it expires with the cart.
+			.filter((s) => !(s.status === 'pending' && !s.charge))
 			.sort((a, b) => new Date(b.from).getTime() - new Date(a.from).getTime());
 		const body: SittingRecord = { sittings, truncated: total > items.length };
 		return NextResponse.json(body);

@@ -24,6 +24,7 @@ function chargeOf(detail: AppointmentDetailResponse): SittingCharge | null {
 		balance: order.balance,
 		totalDiscount: (order as { totalDiscount?: number }).totalDiscount ?? 0,
 		paymentStatus: order.paymentStatus,
+		paymentDueAt: (order as { paymentDueAt?: string | null }).paymentDueAt ?? null,
 		providers,
 	};
 }
@@ -37,6 +38,7 @@ export function toSitting(detail: AppointmentDetailResponse): Sitting {
 	return {
 		id: detail.id,
 		status: detail.status,
+		pendingReason: detail.status === 'pending' ? (detail.pendingReason ?? null) : null,
 		from: detail.from,
 		to: detail.to,
 		service: {

@@ -6,8 +6,9 @@ import type { OrderListItemResponse } from '@opencals/storefront-sdk';
 import { fetcher } from '@/lib/fetcher';
 import { money } from '@/lib/catalog';
 import type { AccountInvoice } from '@/lib/account-types';
+import { paymentLabel } from '@/lib/sittings';
 
-const PAY: Record<string, string> = { paid: 'Paid', unpaid: 'To pay at the shop', 'partially-paid': 'Part paid' };
+const INVOICE_STATUS: Record<string, string> = { draft: 'Being prepared', sent: 'Sent', paid: 'Paid', void: 'Cancelled', failed: 'Not sent' };
 
 function Invoices({ orderId }: { orderId: string }) {
 	const { data, isLoading } = useSWR<AccountInvoice[]>(`/api/account/orders/${orderId}/invoices`, fetcher, { revalidateOnFocus: false });
@@ -25,7 +26,7 @@ function Invoices({ orderId }: { orderId: string }) {
 							View
 						</a>
 					) : (
-						<span className="text-ink-3">{i.status}</span>
+						<span className="text-ink-3">{INVOICE_STATUS[i.status] ?? 'Pending'}</span>
 					)}
 				</li>
 			))}
@@ -51,7 +52,7 @@ export function OrdersView() {
 							<p className="text-sm text-ink-3">{new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(o.createdAt))}</p>
 						</div>
 						<p className="min-w-0 flex-1 text-sm text-ink-2">
-							{o.lineItems.length} {o.lineItems.length === 1 ? 'appointment' : 'appointments'} · {PAY[o.paymentStatus] ?? o.paymentStatus}
+							{o.lineItems.length} {o.lineItems.length === 1 ? 'appointment' : 'appointments'} · {paymentLabel(o.paymentStatus)}
 						</p>
 						<p className="tabular text-lg">{money(o.total, o.paymentCurrencyCode)}</p>
 						<button type="button" onClick={() => setOpen(open === o.id ? null : o.id)} aria-expanded={open === o.id} className="btn btn-outline btn-sm">

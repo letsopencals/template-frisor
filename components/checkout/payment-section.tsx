@@ -14,12 +14,19 @@ const StripePayment = dynamic(() => import('@/components/checkout/stripe-payment
 	loading: () => <div className="h-40 animate-pulse bg-paper-2" aria-label="Loading the card form" />,
 });
 
-const TITLE: Record<string, string> = { stripe: 'Pay now by card', cash: 'Pay at the shop', bank_transfer: 'Bank transfer', no_payment_required: 'Nothing to pay' };
+const TITLE: Record<string, string> = {
+	stripe: 'Pay now by card',
+	cash: 'Pay at the shop',
+	bank_transfer: 'Bank transfer',
+	stripe_invoice: 'Pay by invoice',
+	no_payment_required: 'Nothing to pay',
+};
 const COPY: Record<string, string> = {
 	stripe: 'Card, Apple Pay or Google Pay.',
 	cash: 'Card or cash at the till, after your appointment.',
-	bank_transfer: 'We email the details with your confirmation.',
-	no_payment_required: 'Confirmed straight away.',
+	bank_transfer: 'You get our bank details on the next page and by email.',
+	stripe_invoice: 'We email you an invoice to pay online, by card or bank.',
+	no_payment_required: 'Nothing to pay today.',
 };
 
 /** Checkout section 2: how to pay. Greyed out until the contact details are saved. */
@@ -33,11 +40,23 @@ export function PaymentSection() {
 
 	if (c.step === 'customer') return <p className="text-sm text-ink-3">Add your details above and the ways to pay appear here.</p>;
 
-	if (c.step === 'payment' && c.paymentData?.clientSecret && c.selectedProvider === 'stripe') {
+	if (c.holdLost) {
+		return (
+			<div className="space-y-4">
+				<p className="text-sm text-ink-2">Nothing was booked or charged.</p>
+				<button type="button" onClick={c.startOver} className="btn btn-primary btn-lg w-full">
+					Pick a new time
+				</button>
+			</div>
+		);
+	}
+
+	// The card form, once checkout has started with a method that takes the card here (checkoutMode `internal`).
+	if (c.step === 'payment' && c.paymentData?.clientSecret) {
 		return (
 			<div className="space-y-4">
 				<StripePayment clientSecret={c.paymentData.clientSecret} stripeAccountId={c.paymentData.stripeAccountId} publishableKey={c.paymentData.publishableKey} onSuccess={(pi) => c.handleSubmitCheckout(pi)} onError={(m) => c.setError(m)} disabled={c.isExpired || c.submitting} payLabel={total} />
-				<button type="button" onClick={() => c.setStep('payment-select')} className="link text-sm text-ink-2">
+				<button type="button" onClick={() => { c.setError(null); c.setStep('payment-select'); }} disabled={c.submitting} className="link text-sm text-ink-2">
 					← Choose another way to pay
 				</button>
 			</div>
@@ -45,6 +64,9 @@ export function PaymentSection() {
 	}
 
 	if (c.providers.length === 0) return <p className="text-sm text-ink-2">Online payment isn’t available right now. Call the shop on {siteConfig.contact.phone} and we’ll book you in.</p>;
+
+	const selected = c.providers.find((p) => p.name === method);
+	const takesCard = selected?.checkoutMode === 'internal' || selected?.checkoutMode === 'redirect';
 
 	const onPay = (e: FormEvent) => {
 		e.preventDefault();
@@ -69,7 +91,7 @@ export function PaymentSection() {
 				))}
 			</fieldset>
 			<button type="submit" disabled={!method || c.submitting || c.isExpired} className="btn btn-primary btn-lg mt-5 w-full">
-				{c.submitting ? 'One moment…' : method === 'stripe' ? `Continue to card · ${total}` : `Confirm booking · ${total}`}
+				{c.submitting ? 'One moment…' : takesCard ? `Continue to payment · ${total}` : `Place booking · ${total}`}
 			</button>
 		</form>
 	);

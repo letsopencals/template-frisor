@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { Sitting } from '@/lib/sittings';
+import { waitingOn, type PendingReason, type Sitting } from '@/lib/sittings';
 import type { ShelfItem } from '@/lib/catalog';
 import { bookHref, money, sittingLength } from '@/lib/catalog';
 import { googleCalendarHref, icsHref, ICS_FILENAME, type CalendarEvent } from '@/lib/calendar';
@@ -8,6 +8,7 @@ import { siteConfig } from '@/lib/site-config';
 import { AppointmentLabel } from '@/components/confirmation/appointment-label';
 import { RestockRow } from '@/components/confirmation/restock-row';
 import { directionsHref } from '@/lib/directions';
+import { PaymentNote, type PaymentInfo } from '@/components/confirmation/payment-note';
 
 export interface ShopRef {
 	id: string;
@@ -25,8 +26,42 @@ function Fact({ term, children }: { term: string; children: React.ReactNode }) {
 	);
 }
 
-/** The thank-you content for one or more appointments. Pure props, so /preview renders it too. */
-export function ConfirmationBody({ sittings, shops, shelf, total, currency }: { sittings: Sitting[]; shops: ShopRef[]; shelf: ShelfItem[]; total: number | null; currency: string | null }) {
+const HEAD: Record<'confirmed' | PendingReason, { label: string; title: string; lead: string }> = {
+	confirmed: { label: 'Booking confirmed', title: 'You’re booked in.', lead: 'A confirmation is on its way to your inbox.' },
+	awaiting_payment: {
+		label: 'Awaiting payment',
+		title: 'Booking received.',
+		lead: 'We hold your chair until the payment arrives, then confirm it by email.',
+	},
+	awaiting_approval: {
+		label: 'Awaiting confirmation',
+		title: 'Booking received.',
+		lead: 'The shop checks this booking before confirming it. You’ll get an email as soon as it’s confirmed.',
+	},
+};
+
+/**
+ * The thank-you content for one or more appointments. Pure props, so /preview renders it too. "Confirmed"
+ * unless a sitting is `pending` with a reason; `payment` and `paymentStatus` come from the checkout outcome
+ * when the order can't be read back from the account.
+ */
+export function ConfirmationBody({
+	sittings,
+	shops,
+	shelf,
+	total,
+	currency,
+	payment = null,
+	paymentStatus = null,
+}: {
+	sittings: Sitting[];
+	shops: ShopRef[];
+	shelf: ShelfItem[];
+	total: number | null;
+	currency: string | null;
+	payment?: PaymentInfo | null;
+	paymentStatus?: string | null;
+}) {
 	const tz = siteConfig.timeZone;
 	const first = sittings[0]!;
 	const cur = currency ?? first.charge?.currency ?? siteConfig.currency;
@@ -46,7 +81,12 @@ export function ConfirmationBody({ sittings, shops, shelf, total, currency }: { 
 	const nextDue = cadence ? at + cadence * 86_400_000 : null;
 	const kit = shelfLines.map((l) => l.slug).filter(Boolean).join(',');
 	const before = siteConfig.beforeYouSit[first.service.slug] ?? siteConfig.beforeYouSit.default ?? [];
-	const paid = first.charge ? first.charge.paymentStatus === 'paid' : null;
+	const payState = first.charge?.paymentStatus ?? paymentStatus;
+	const paid = payState ? payState === 'paid' : null;
+	const owing = payState === 'unpaid' || payState === 'partially-paid';
+	const waiting = waitingOn(sittings);
+	const head = HEAD[waiting ?? 'confirmed'];
+	const payInfo: PaymentInfo | null = payment ?? (first.charge ? { provider: null, instructions: null, dueAt: first.charge.paymentDueAt, reference: first.charge.orderName } : null);
 	const dayShort = new Intl.DateTimeFormat('en-GB', { timeZone: tz, weekday: 'short', day: 'numeric', month: 'short' }).format(at);
 
 	return (
@@ -57,9 +97,9 @@ export function ConfirmationBody({ sittings, shops, shelf, total, currency }: { 
 				</div>
 
 				<div className="order-1 lg:order-2">
-					<p className="label text-brass-lo">Booking confirmed</p>
-					<h1 className="display mt-2 text-[2.6rem] leading-[1.02] sm:text-6xl">You’re booked in.</h1>
-					<p className="mt-3 text-ink-2">A confirmation is on its way to your inbox.</p>
+					<p className={waiting ? 'label text-oxblood' : 'label text-brass-lo'}>{head.label}</p>
+					<h1 className="display mt-2 text-[2.6rem] leading-[1.02] sm:text-6xl">{head.title}</h1>
+					<p className="mt-3 text-ink-2">{head.lead}</p>
 
 					<dl className="mt-6 border-t border-paper-3">
 						{sittings.map((s) => {
@@ -98,10 +138,12 @@ export function ConfirmationBody({ sittings, shops, shelf, total, currency }: { 
 						{total !== null ? (
 							<Fact term={paid === false ? 'To pay' : 'Total'}>
 								<span className="tabular font-semibold">{money(total, cur)}</span>
-								{paid === false ? <span className="block text-sm text-ink-2">Pay at the till after your appointment.</span> : null}
+								{payState === 'voided' ? <span className="block text-sm text-ink-2">Cancelled — not charged.</span> : null}
 							</Fact>
 						) : null}
 					</dl>
+
+					{owing || payment?.instructions ? <PaymentNote info={payInfo} timeZone={tz} /> : null}
 
 					<div className="mt-6 flex flex-wrap gap-2">
 						<a href={icsHref(events)} download={ICS_FILENAME} className="btn btn-primary">

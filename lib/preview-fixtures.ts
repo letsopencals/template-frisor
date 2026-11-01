@@ -28,6 +28,7 @@ export function fixtureSittings(c: Catalog): Sitting[] {
 		return {
 			id: `fx-sitting-${i}`,
 			status,
+			pendingReason: null,
 			from: new Date(start).toISOString(),
 			to: new Date(start + svc.duration * 1000).toISOString(),
 			service: { id: svc.id, slug: svc.slug, title: svc.groupTitle, option: svc.option, duration: svc.duration, price: svc.price, image: svc.image, allowCustomerCancel: true, allowCustomerReschedule: true, cancelGap: 4 * 3600, rescheduleGap: 4 * 3600 },

@@ -1,11 +1,9 @@
 import Link from 'next/link';
 import clsx from 'clsx';
-import type { Sitting } from '@/lib/sittings';
+import { statusLabel, type Sitting } from '@/lib/sittings';
 import { bookHref } from '@/lib/catalog';
 import { longDate, timeLabel } from '@/lib/when';
 import { siteConfig } from '@/lib/site-config';
-
-const STATUS: Record<Sitting['status'], string> = { scheduled: 'Booked', pending: 'Awaiting confirmation', completed: 'Done', canceled: 'Cancelled' };
 
 /** One visit as a row: date, service, barber and shop, and Manage or Book again. */
 export function VisitRow({ s, past }: { s: Sitting; past: boolean }) {
@@ -26,7 +24,7 @@ export function VisitRow({ s, past }: { s: Sitting; past: boolean }) {
 				<p className="text-sm text-ink-2">
 					{s.barber ? `With ${s.barber.firstName}` : 'First free barber'}
 					{s.shop ? ` · ${s.shop.title}` : ''}
-					<span className={clsx('ml-2 text-xs', s.status === 'canceled' ? 'text-oxblood' : 'text-ink-3')}>{STATUS[s.status]}</span>
+					<span className={clsx('ml-2 text-xs', s.status === 'canceled' ? 'text-oxblood' : 'text-ink-3')}>{statusLabel(s)}</span>
 				</p>
 			</div>
 			<div className="flex gap-2">

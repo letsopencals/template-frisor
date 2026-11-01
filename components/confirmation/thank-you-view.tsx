@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import useSWR from 'swr';
 import { readDocket } from '@/lib/docket-snapshot';
+import { readOutcome } from '@/lib/checkout-outcome';
 import { useHydrated } from '@/hooks/use-hydrated';
 import type { Sitting, SittingRecord } from '@/lib/sittings';
 import type { ShelfItem } from '@/lib/catalog';
@@ -30,20 +31,27 @@ export function ThankYouView({ shops, shelf }: { shops: ShopRef[]; shelf: ShelfI
 	const { status } = useSession();
 	const { data: record } = useSWR(status === 'authenticated' ? '/api/account/sittings' : null, quiet<SittingRecord>, { revalidateOnFocus: false });
 	const snapshot = hydrated ? readDocket() : null;
+	const outcome = hydrated ? readOutcome(orderId) : null;
 
 	const sittings: Sitting[] = useMemo(() => {
 		const fromOrder = orderId ? (record?.sittings ?? []).filter((s) => s.charge?.orderId === orderId) : [];
-		return fromOrder.length ? fromOrder : (snapshot?.sittings ?? []);
-	}, [orderId, record, snapshot]);
+		if (fromOrder.length) return fromOrder;
+		// The docket was taken before submit: take each booking's status from what submit answered.
+		return (snapshot?.sittings ?? []).map((s) => {
+			const a = outcome?.appointments[s.id];
+			return a ? { ...s, status: a.status, pendingReason: a.pendingReason } : s;
+		});
+	}, [orderId, record, snapshot, outcome]);
 
 	if (!hydrated) return <div className="min-h-[60svh]" aria-busy="true" />;
 	if (!sittings.length) {
 		return (
 			<div className="mx-auto max-w-xl px-4 py-24 text-center">
-				<h1 className="display text-5xl">You’re booked in</h1>
-				<p className="mt-4 text-ink-2">Your confirmation is on its way by email, with everything you need for the day.</p>
+				<h1 className="display text-5xl">Booking received</h1>
+				<p className="mt-4 text-ink-2">Everything you need is on its way by email: whether it’s confirmed, the details for the day and, if anything is left to pay, how to pay it.</p>
 			</div>
 		);
 	}
-	return <ConfirmationBody sittings={sittings} shops={shops} shelf={shelf} total={snapshot?.total ?? null} currency={snapshot?.currency ?? null} />;
+	const payment = outcome ? { provider: outcome.provider, instructions: outcome.instructions, dueAt: outcome.paymentDueAt, reference: outcome.orderName } : null;
+	return <ConfirmationBody sittings={sittings} shops={shops} shelf={shelf} total={snapshot?.total ?? null} currency={snapshot?.currency ?? null} payment={payment} paymentStatus={outcome?.paymentStatus ?? null} />;
 }

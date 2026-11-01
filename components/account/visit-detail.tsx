@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { bookHref, money, sittingLength } from '@/lib/catalog';
-import { isUpcoming } from '@/lib/sittings';
+import { isUpcoming, paymentLabel, statusLabel } from '@/lib/sittings';
 import { googleCalendarHref, icsHref, ICS_FILENAME } from '@/lib/calendar';
 import { directionsHref } from '@/lib/directions';
 import { longDate, timeLabel } from '@/lib/when';
@@ -86,7 +86,7 @@ export function VisitDetail({ id, action }: { id: string; action?: string | null
 						<span className="block text-sm text-ink-2">{s.shop?.addressLines.join(', ')}</span>
 					</Fact>
 					<Fact term="Barber">{s.barber?.name ?? 'First free barber'}</Fact>
-					<Fact term="Status">{s.status === 'canceled' ? 'Cancelled' : s.status === 'completed' ? 'Done' : s.status === 'pending' ? 'Awaiting confirmation' : 'Booked'}</Fact>
+					<Fact term="Status">{statusLabel(s)}</Fact>
 					{s.lines.length ? (
 						<Fact term="Extras">
 							{s.lines.map((l) => (
@@ -101,7 +101,10 @@ export function VisitDetail({ id, action }: { id: string; action?: string | null
 					{s.charge ? (
 						<Fact term="Order">
 							{s.charge.orderName} · {money(s.charge.orderTotal, s.charge.currency)}
-							<span className="block text-sm text-ink-2">{s.charge.paymentStatus === 'paid' ? 'Paid' : s.charge.balance > 0 ? `${money(s.charge.balance, s.charge.currency)} to pay at the shop` : 'Unpaid'}</span>
+							<span className="block text-sm text-ink-2">
+								{s.charge.paymentStatus !== 'paid' && s.charge.paymentStatus !== 'voided' && s.charge.balance > 0 ? `${money(s.charge.balance, s.charge.currency)} to pay` : paymentLabel(s.charge.paymentStatus)}
+								{s.charge.paymentDueAt && s.charge.paymentStatus !== 'paid' && s.charge.paymentStatus !== 'voided' ? ` by ${longDate(new Date(s.charge.paymentDueAt).getTime(), tz)}, ${timeLabel(new Date(s.charge.paymentDueAt).getTime(), tz)}` : null}
+							</span>
 						</Fact>
 					) : null}
 				</dl>

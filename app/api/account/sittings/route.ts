@@ -25,7 +25,7 @@ export async function GET() {
 			throwOnError: true,
 		});
 		const items = list?.data ?? [];
-		const total = (list?.meta as { total?: number } | undefined)?.total ?? items.length;
+		const total = list?.meta?.itemCount ?? items.length;
 		const details = await Promise.all(
 			items.map(async (item) => {
 				try {

@@ -1,10 +1,10 @@
-import type { PaymentInstructions } from '@opencals/storefront-sdk';
+import type { PaymentInstructions, PaymentProviderName } from '@opencals/storefront-sdk';
 import { longDate, timeLabel } from '@/lib/when';
 
 /** How the customer pays for an order placed without a card: what checkout submit returned, if we still have it. */
 export interface PaymentInfo {
 	/** Provider name of the chosen method (cash, bank_transfer, stripe_invoice, …). */
-	provider: PaymentInstructions['provider'] | null;
+	provider: PaymentProviderName | null;
 	instructions: PaymentInstructions | null;
 	dueAt: string | null;
 	/** Order number, the bank transfer reference. */

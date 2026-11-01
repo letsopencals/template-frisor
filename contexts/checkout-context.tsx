@@ -7,6 +7,8 @@ import type {
 	BillingAddress,
 	CartItem,
 	CheckoutCustomer,
+	CheckoutErrorCode,
+	CheckoutErrorResponse,
 	CheckoutFieldRequirement,
 	CheckoutResponse,
 	CheckoutSetting,
@@ -14,6 +16,7 @@ import type {
 	CustomerProviderCatalogItem,
 	MarketingConsentInput,
 	MarketingOptInDisplay,
+	PaymentProviderName,
 	StartCheckout,
 	SubmitCheckout,
 } from '@opencals/storefront-sdk';
@@ -28,8 +31,6 @@ import { saveOutcome } from '@/lib/checkout-outcome';
  */
 export type CheckoutStep = 'customer' | 'payment-select' | 'payment';
 
-/** A payment method's provider name. */
-type ProviderName = CustomerProviderCatalogItem['name'];
 export type ConsentChannel = keyof MarketingConsentInput;
 
 /** What the store asks for at checkout, with safe defaults when settings are missing. */
@@ -71,12 +72,12 @@ const EMPTY_CONSENT: ConsentDraft = { email: false, sms: false, whatsapp: false 
 
 // The backend can override the requested provider with the "no payment required" fallback when nothing
 // is collectible. Compare against the known name (the SDK union is the source of truth for the rest).
-function isNoPaymentRequired(provider: CheckoutStartResponse['provider']): boolean {
+function isNoPaymentRequired(provider: PaymentProviderName): boolean {
 	return provider === 'no_payment_required';
 }
 
 /** Checkout conflicts the API names with a `code`; the wording below is ours, the code decides. */
-const CODE_MESSAGE: Record<string, string> = {
+const CODE_MESSAGE: Partial<Record<CheckoutErrorCode, string>> = {
 	CART_EXPIRED: 'Your hold ran out and someone else took that time. Pick a new time and we’ll hold it for you.',
 	PAYMENT_NOT_AUTHORIZED: 'Your card wasn’t authorised, so nothing was booked or charged. Try again, or use another card.',
 	CHECKOUT_IN_PROGRESS: 'We’re still processing your booking. Give it a moment and try again.',
@@ -89,7 +90,7 @@ const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 class CheckoutError extends Error {
 	constructor(
 		message: string,
-		readonly code?: string,
+		readonly code?: CheckoutErrorCode,
 		readonly orderId?: string,
 	) {
 		super(message);
@@ -152,7 +153,7 @@ interface CheckoutContextValue {
 	setConsent: (channel: ConsentChannel, value: boolean) => void;
 
 	providers: CustomerProviderCatalogItem[];
-	selectedProvider: ProviderName | null;
+	selectedProvider: PaymentProviderName | null;
 	paymentData: CheckoutStartResponse | null;
 
 	items: CartItem[];
@@ -162,7 +163,7 @@ interface CheckoutContextValue {
 	setStep: (step: CheckoutStep) => void;
 	setError: (error: string | null) => void;
 	handleSaveCustomer: (e: React.FormEvent) => Promise<void>;
-	handleStartCheckout: (providerName: ProviderName) => Promise<void>;
+	handleStartCheckout: (providerName: PaymentProviderName) => Promise<void>;
 	handleSubmitCheckout: (stripePaymentIntentId?: string) => Promise<void>;
 	extendCart: () => Promise<void>;
 	/** Drops the cart and goes back to /book to pick a new time. */
@@ -176,16 +177,19 @@ function trimmed(v: string): string | undefined {
 	return t ? t : undefined;
 }
 
+/** What `/api/checkout/*` answers on failure (see `lib/api-error-handler.ts`). */
+type CheckoutErrorJson = { error?: string; errors?: FieldErrors } & Partial<Pick<CheckoutErrorResponse, 'code' | 'orderId'>>;
+
 interface ReadError {
 	message: string;
 	fields: FieldErrors;
-	code?: string;
+	code?: CheckoutErrorCode;
 	orderId?: string;
 }
 
 async function readError(res: Response, fallback: string): Promise<ReadError> {
 	try {
-		const data = (await res.json()) as { error?: string; errors?: FieldErrors; code?: string; orderId?: string };
+		const data = (await res.json()) as CheckoutErrorJson;
 		const message = (data.code && CODE_MESSAGE[data.code]) || data.error || fallback;
 		return { message, fields: data.errors ?? {}, code: data.code, orderId: data.orderId };
 	} catch {
@@ -232,10 +236,10 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
 	}, [session, prefilled]);
 
 	const providers = usePaymentProviders(cartId);
-	const [selectedProvider, setSelectedProvider] = useState<ProviderName | null>(null);
+	const [selectedProvider, setSelectedProvider] = useState<PaymentProviderName | null>(null);
 	const [paymentData, setPaymentData] = useState<CheckoutStartResponse | null>(null);
 	// The method being paid with, read by submit (state would be stale inside the same call).
-	const providerRef = useRef<ProviderName | null>(null);
+	const providerRef = useRef<PaymentProviderName | null>(null);
 
 	// No cart at all → back to /book. Only once CartProvider has read the
 	// stored cart id from localStorage (before that cartId is always null, so a
@@ -398,7 +402,7 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
 
 	// 02 — Start checkout with the chosen method, then route on how that method collects payment.
 	const handleStartCheckout = useCallback(
-		async (providerName: ProviderName) => {
+		async (providerName: PaymentProviderName) => {
 			setError(null);
 			setSubmitting(true);
 			setSelectedProvider(providerName);

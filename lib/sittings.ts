@@ -4,7 +4,7 @@
  * allow-lists: no internal notes, no staff contact details, no customer credentials. Types only.
  */
 
-import type { AppointmentDetailOrder, AppointmentStatusType, StorefrontAppointmentPendingReason } from '@opencals/storefront-sdk';
+import type { AppointmentDetailOrder, AppointmentStatusType, PaymentProviderName, StorefrontAppointmentPendingReason } from '@opencals/storefront-sdk';
 
 export interface SittingLine {
 	id: string;
@@ -28,7 +28,7 @@ export interface SittingCharge {
 	paymentStatus: AppointmentDetailOrder['paymentStatus'];
 	/** When an unpaid order must be paid by (ISO), if the shop set a deadline. */
 	paymentDueAt: string | null;
-	providers: string[];
+	providers: PaymentProviderName[];
 }
 
 export interface Sitting {

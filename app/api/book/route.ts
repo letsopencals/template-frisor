@@ -4,21 +4,24 @@ import type {
 	AppointmentDateRangeSlot,
 	CartResponse,
 	CheckoutQuestionAnswer,
+	CreateAppointment,
 	CreateAppointmentAddOn,
-	ExistingOrderCustomer,
-	NewOrderCustomer,
+	ExistingAppointmentCustomer,
+	NewAppointmentCustomer,
 } from '@opencals/storefront-sdk';
 import { getAccessToken } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { handleApiError } from '@/lib/api-error-handler';
 import { revalidateAvailability } from '@/lib/availability-server';
 
-/** The customer as the browser sends it: `kind` picks which of the SDK's customer shapes it becomes. */
-type CustomerInput = Pick<NewOrderCustomer, 'firstName' | 'lastName'> & {
-	kind: NonNullable<ExistingOrderCustomer['kind'] | NewOrderCustomer['kind']>;
-	customerId?: ExistingOrderCustomer['customerId'];
-	email?: NewOrderCustomer['email'];
-};
+/** The customer as the browser sends it: `kind` picks which of the SDK's appointment customer shapes it is. */
+type CustomerInput = ExistingAppointmentCustomer | NewAppointmentCustomer;
+
+function appointmentCustomer(customer: CustomerInput): NonNullable<CreateAppointment['customer']> {
+	if (customer.kind === 'existing' && customer.customerId) return { customerId: customer.customerId };
+	const fresh = 'email' in customer ? customer : null;
+	return { externalId: fresh?.email ?? '', email: fresh?.email ?? '', firstName: fresh?.firstName, lastName: fresh?.lastName };
+}
 
 interface BookInput {
 	slot: AppointmentDateRangeSlot;
@@ -137,14 +140,7 @@ export async function POST(request: NextRequest) {
 				addOns: (addOns ?? [])
 					.filter((a) => a?.addOnId)
 					.map((a) => ({ addOnId: a.addOnId, ...(typeof a.quantity === 'number' ? { quantity: a.quantity } : {}) })),
-				...(customer
-					? {
-							customer:
-								customer.kind === 'existing' && customer.customerId
-									? { customerId: customer.customerId }
-									: { externalId: customer.email ?? '', email: customer.email ?? '', firstName: customer.firstName, lastName: customer.lastName },
-						}
-					: {}),
+				...(customer ? { customer: appointmentCustomer(customer) } : {}),
 				...(answers.length > 0 ? { checkoutQuestionAnswers: answers } : {}),
 			},
 			headers: authHeaders,

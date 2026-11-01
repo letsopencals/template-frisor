@@ -1,6 +1,13 @@
 'use client';
 
-import type { AppointmentStatusType, CheckoutOrder, CheckoutResponse, PaymentInstructions, StorefrontAppointmentPendingReason } from '@opencals/storefront-sdk';
+import type {
+	AppointmentStatusType,
+	CheckoutOrder,
+	CheckoutResponse,
+	PaymentInstructions,
+	PaymentProviderName,
+	StorefrontAppointmentPendingReason,
+} from '@opencals/storefront-sdk';
 
 /**
  * What checkout submit answered, kept in sessionStorage for the thank-you page: whether each booking is
@@ -13,7 +20,7 @@ export interface CheckoutOutcome {
 	orderName: string | null;
 	savedAt: number;
 	/** The payment method the customer picked (provider name). */
-	provider: PaymentInstructions['provider'] | null;
+	provider: PaymentProviderName | null;
 	paymentStatus: CheckoutOrder['paymentStatus'] | null;
 	paymentDueAt: string | null;
 	instructions: PaymentInstructions | null;
@@ -23,7 +30,7 @@ export interface CheckoutOutcome {
 const KEY = 'frisor:outcome';
 const MAX_AGE = 6 * 60 * 60 * 1000;
 
-export function saveOutcome(data: CheckoutResponse, provider: string | null): void {
+export function saveOutcome(data: CheckoutResponse, provider: PaymentProviderName | null): void {
 	const order = data.order;
 	if (!order?.id) return;
 	const appointments: CheckoutOutcome['appointments'] = {};

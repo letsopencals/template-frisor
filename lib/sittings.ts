@@ -4,10 +4,7 @@
  * allow-lists: no internal notes, no staff contact details, no customer credentials. Types only.
  */
 
-export type SittingStatus = 'pending' | 'scheduled' | 'completed' | 'canceled';
-
-/** Why a `pending` booking isn't confirmed yet. Null means confirmed (or being confirmed right now). */
-export type PendingReason = 'awaiting_payment' | 'awaiting_approval';
+import type { AppointmentDetailOrder, AppointmentStatusType, StorefrontAppointmentPendingReason } from '@opencals/storefront-sdk';
 
 export interface SittingLine {
 	id: string;
@@ -28,7 +25,7 @@ export interface SittingCharge {
 	paidTotal: number;
 	balance: number;
 	totalDiscount: number;
-	paymentStatus: 'unpaid' | 'paid' | 'partially-paid' | 'voided';
+	paymentStatus: AppointmentDetailOrder['paymentStatus'];
 	/** When an unpaid order must be paid by (ISO), if the shop set a deadline. */
 	paymentDueAt: string | null;
 	providers: string[];
@@ -36,9 +33,9 @@ export interface SittingCharge {
 
 export interface Sitting {
 	id: string;
-	status: SittingStatus;
-	/** Set only while the booking waits for payment or for the shop to confirm it. */
-	pendingReason: PendingReason | null;
+	status: AppointmentStatusType;
+	/** Set only while the booking waits for payment or for the shop to confirm it. Null means confirmed (or being confirmed right now). */
+	pendingReason: StorefrontAppointmentPendingReason | null;
 	/** UTC ISO. */
 	from: string;
 	to: string;
@@ -75,7 +72,7 @@ export const isUpcoming = (s: Sitting, now = Date.now()) =>
  * counts: right after checkout an automatic shop's booking is briefly `pending` with no reason while it's
  * confirmed in the background, and that is a confirmed booking. Payment wins over approval (pay first).
  */
-export function waitingOn(sittings: Pick<Sitting, 'status' | 'pendingReason'>[]): PendingReason | null {
+export function waitingOn(sittings: Pick<Sitting, 'status' | 'pendingReason'>[]): StorefrontAppointmentPendingReason | null {
 	const reasons = sittings.filter((s) => s.status === 'pending').map((s) => s.pendingReason);
 	if (reasons.includes('awaiting_payment')) return 'awaiting_payment';
 	if (reasons.includes('awaiting_approval')) return 'awaiting_approval';
@@ -89,7 +86,7 @@ export const PAYMENT_LABEL: Record<SittingCharge['paymentStatus'], string> = {
 	'partially-paid': 'Part paid',
 	voided: 'Cancelled — not charged',
 };
-export const paymentLabel = (status: string): string => PAYMENT_LABEL[status as SittingCharge['paymentStatus']] ?? 'Payment pending';
+export const paymentLabel = (status: SittingCharge['paymentStatus']): string => PAYMENT_LABEL[status] ?? 'Payment pending';
 
 /** A sitting's state in words, with the reason when it's waiting. */
 export function statusLabel(s: Pick<Sitting, 'status' | 'pendingReason'>): string {

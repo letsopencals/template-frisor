@@ -1,47 +1,33 @@
 import '@/lib/opencals';
 import { AppointmentService, CartService, CheckoutService, OpencalsApiError } from '@opencals/storefront-sdk';
-import type { CartResponse } from '@opencals/storefront-sdk';
+import type {
+	AppointmentDateRangeSlot,
+	CartResponse,
+	CheckoutQuestionAnswer,
+	CreateAppointmentAddOn,
+	ExistingOrderCustomer,
+	NewOrderCustomer,
+} from '@opencals/storefront-sdk';
 import { getAccessToken } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { handleApiError } from '@/lib/api-error-handler';
 import { revalidateAvailability } from '@/lib/availability-server';
 
-interface AddOnSelection {
-	addOnId: string;
-	/** Omitted for `durationMultiplied` add-ons (the backend prices them × booked units). */
-	quantity?: number;
-}
-
-interface QuestionAnswerInput {
-	questionId: string;
-	question: string;
-	answer: string;
-	/** Ids from /api/uploads/presign, for file-upload questions. */
-	fileIds?: string[];
-}
-
-interface CustomerInput {
-	kind: 'new' | 'existing';
-	customerId?: string;
-	email?: string;
-	firstName?: string;
-	lastName?: string;
-}
+/** The customer as the browser sends it: `kind` picks which of the SDK's customer shapes it becomes. */
+type CustomerInput = Pick<NewOrderCustomer, 'firstName' | 'lastName'> & {
+	kind: NonNullable<ExistingOrderCustomer['kind'] | NewOrderCustomer['kind']>;
+	customerId?: ExistingOrderCustomer['customerId'];
+	email?: NewOrderCustomer['email'];
+};
 
 interface BookInput {
-	slot: {
-		productId: string;
-		fromDate: string;
-		fromTime: string;
-		toDate: string;
-		toTime: string;
-		staffMemberId?: string | null;
-		locationId?: string | null;
-	};
+	slot: AppointmentDateRangeSlot;
 	numberOfAttendees?: number;
-	addOns?: AddOnSelection[];
+	/** `quantity` is omitted for `durationMultiplied` add-ons (the backend prices them × booked units). */
+	addOns?: CreateAppointmentAddOn[];
 	customer?: CustomerInput;
-	checkoutQuestionAnswers?: QuestionAnswerInput[];
+	/** `fileIds` are ids from /api/uploads/presign, for file-upload questions. */
+	checkoutQuestionAnswers?: CheckoutQuestionAnswer[];
 	/**
 	 * Cart item from an earlier attempt in the same composer (the patient
 	 * changed the visit after reserving). Removed first so its pending hold
@@ -50,10 +36,10 @@ interface BookInput {
 	replaceItemId?: string | null;
 }
 
-function sanitizeAnswers(input: unknown): QuestionAnswerInput[] {
+function sanitizeAnswers(input: unknown): CheckoutQuestionAnswer[] {
 	if (!Array.isArray(input)) return [];
 	return input
-		.filter((a): a is QuestionAnswerInput => !!a && typeof a.questionId === 'string' && typeof a.answer === 'string')
+		.filter((a): a is CheckoutQuestionAnswer => !!a && typeof a.questionId === 'string' && typeof a.answer === 'string')
 		.map((a) => {
 			const fileIds = Array.isArray(a.fileIds) ? a.fileIds.filter((id): id is string => typeof id === 'string' && !!id) : [];
 			return {

@@ -8,7 +8,7 @@ import { money } from '@/lib/catalog';
 import type { AccountInvoice } from '@/lib/account-types';
 import { paymentLabel } from '@/lib/sittings';
 
-const INVOICE_STATUS: Record<string, string> = { draft: 'Being prepared', sent: 'Sent', paid: 'Paid', void: 'Cancelled', failed: 'Not sent' };
+const INVOICE_STATUS: Record<AccountInvoice['status'], string> = { draft: 'Being prepared', sent: 'Sent', paid: 'Paid', void: 'Cancelled', failed: 'Not sent' };
 
 function Invoices({ orderId }: { orderId: string }) {
 	const { data, isLoading } = useSWR<AccountInvoice[]>(`/api/account/orders/${orderId}/invoices`, fetcher, { revalidateOnFocus: false });

@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { waitingOn, type PendingReason, type Sitting } from '@/lib/sittings';
+import type { CheckoutOrder, StorefrontAppointmentPendingReason } from '@opencals/storefront-sdk';
+import { waitingOn, type Sitting } from '@/lib/sittings';
 import type { ShelfItem } from '@/lib/catalog';
 import { bookHref, money, sittingLength } from '@/lib/catalog';
 import { googleCalendarHref, icsHref, ICS_FILENAME, type CalendarEvent } from '@/lib/calendar';
@@ -26,7 +27,7 @@ function Fact({ term, children }: { term: string; children: React.ReactNode }) {
 	);
 }
 
-const HEAD: Record<'confirmed' | PendingReason, { label: string; title: string; lead: string }> = {
+const HEAD: Record<'confirmed' | StorefrontAppointmentPendingReason, { label: string; title: string; lead: string }> = {
 	confirmed: { label: 'Booking confirmed', title: 'You’re booked in.', lead: 'A confirmation is on its way to your inbox.' },
 	awaiting_payment: {
 		label: 'Awaiting payment',
@@ -60,7 +61,7 @@ export function ConfirmationBody({
 	total: number | null;
 	currency: string | null;
 	payment?: PaymentInfo | null;
-	paymentStatus?: string | null;
+	paymentStatus?: CheckoutOrder['paymentStatus'] | null;
 }) {
 	const tz = siteConfig.timeZone;
 	const first = sittings[0]!;

@@ -1,4 +1,4 @@
-import type { FeedbackQuestionResponse, InvoiceResponse } from '@opencals/storefront-sdk';
+import type { FeedbackQuestionResponse, InvoiceResponse, MarketingConsentInput, MarketingConsentState } from '@opencals/storefront-sdk';
 
 /**
  * Small public-safe shapes the account API routes return (client-safe, no SDK calls).
@@ -7,8 +7,8 @@ import type { FeedbackQuestionResponse, InvoiceResponse } from '@opencals/storef
 export interface AccountInvoice {
 	id: string;
 	number: string;
-	kind: 'collectible' | 'receipt';
-	status: 'draft' | 'sent' | 'paid' | 'void' | 'failed';
+	kind: InvoiceResponse['kind'];
+	status: InvoiceResponse['status'];
 	amountDue: number;
 	currency: string;
 	issuedAt: string | null;
@@ -27,16 +27,10 @@ export interface AccountFeedbackQuestion {
 	options: string[];
 }
 
-export type ConsentState = 'not_subscribed' | 'subscribed' | 'unsubscribed';
-
-export interface AccountConsent {
-	email: ConsentState;
-	sms: ConsentState;
-	whatsapp: ConsentState;
-}
+/** Consent per marketing channel. */
+export type AccountConsent = Record<keyof MarketingConsentInput, MarketingConsentState>;
 
 export function toAccountInvoice(i: InvoiceResponse): AccountInvoice {
-	const raw = i as InvoiceResponse & { issuedAt?: string | null; dueAt?: string | null; paidAt?: string | null };
 	return {
 		id: i.id,
 		number: i.number,
@@ -44,9 +38,9 @@ export function toAccountInvoice(i: InvoiceResponse): AccountInvoice {
 		status: i.status,
 		amountDue: i.amountDue,
 		currency: i.currencyCode,
-		issuedAt: raw.issuedAt ?? null,
-		dueAt: raw.dueAt ?? null,
-		paidAt: raw.paidAt ?? null,
+		issuedAt: i.issuedAt ?? null,
+		dueAt: i.dueAt ?? null,
+		paidAt: i.paidAt ?? null,
 		url: i.externalUrl || null,
 	};
 }

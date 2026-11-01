@@ -1,7 +1,6 @@
 'use client';
 
-import type { CartItem } from '@opencals/storefront-sdk';
-import type { CartWithDiscounts } from '@/types/discount';
+import type { CartItem, CartResponse } from '@opencals/storefront-sdk';
 import { isShelfSlug } from '@/lib/catalog';
 import type { Sitting } from '@/lib/sittings';
 
@@ -64,14 +63,14 @@ function sittingOf(item: CartItem): Sitting | null {
 			title: x.addOn?.title ?? 'Extra',
 			quantity: x.quantity,
 			unitPrice: x.originalUnitPrice,
-			image: (x.addOn as { image?: { url?: string | null } | null } | undefined)?.image?.url ?? null,
+			image: x.addOn?.image?.url ?? null,
 			shelf: isShelfSlug(x.addOn?.slug),
 		})),
 		charge: null,
 	};
 }
 
-export function saveDocket(cart: CartWithDiscounts | null): void {
+export function saveDocket(cart: CartResponse | null): void {
 	if (!cart?.items?.length) return;
 	const snap: DocketSnapshot = {
 		savedAt: Date.now(),

@@ -4,7 +4,7 @@ import { longDate, timeLabel } from '@/lib/when';
 /** How the customer pays for an order placed without a card: what checkout submit returned, if we still have it. */
 export interface PaymentInfo {
 	/** Provider name of the chosen method (cash, bank_transfer, stripe_invoice, …). */
-	provider: string | null;
+	provider: PaymentInstructions['provider'] | null;
 	instructions: PaymentInstructions | null;
 	dueAt: string | null;
 	/** Order number, the bank transfer reference. */

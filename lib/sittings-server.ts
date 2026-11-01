@@ -24,7 +24,7 @@ function chargeOf(detail: AppointmentDetailResponse): SittingCharge | null {
 		balance: order.balance,
 		totalDiscount: (order as { totalDiscount?: number }).totalDiscount ?? 0,
 		paymentStatus: order.paymentStatus,
-		paymentDueAt: (order as { paymentDueAt?: string | null }).paymentDueAt ?? null,
+		paymentDueAt: order.paymentDueAt ?? null,
 		providers,
 	};
 }
@@ -48,7 +48,7 @@ export function toSitting(detail: AppointmentDetailResponse): Sitting {
 			option: p.variantTitle && p.variantTitle !== 'Default Title' ? p.variantTitle : null,
 			duration: p.duration,
 			price: p.price,
-			image: (p as { image?: { url?: string | null } | null }).image?.url ?? null,
+			image: p.image?.url ?? null,
 			allowCustomerCancel: p.allowCustomerCancel !== false,
 			allowCustomerReschedule: p.allowCustomerReschedule !== false,
 			cancelGap: p.cancelGap ?? 0,
@@ -77,7 +77,7 @@ export function toSitting(detail: AppointmentDetailResponse): Sitting {
 			: null,
 		notes: (detail.checkoutQuestionAnswers ?? []).map((a) => ({ question: a.question, answer: a.answer ?? null })),
 		lines: (detail.addOns ?? []).map((a) => {
-			const addOn = a.addOn as { slug?: string; title?: string; price?: number; image?: { url?: string | null } | null } | undefined;
+			const addOn = a.addOn;
 			return {
 				id: a.id,
 				slug: addOn?.slug ?? null,

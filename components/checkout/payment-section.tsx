@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useState, type FormEvent } from 'react';
 import clsx from 'clsx';
+import type { CustomerProviderCatalogItem } from '@opencals/storefront-sdk';
 import { useCart } from '@/contexts/cart-context';
 import { useCheckout } from '@/contexts/checkout-context';
 import { money } from '@/lib/catalog';
@@ -14,14 +15,14 @@ const StripePayment = dynamic(() => import('@/components/checkout/stripe-payment
 	loading: () => <div className="h-40 animate-pulse bg-paper-2" aria-label="Loading the card form" />,
 });
 
-const TITLE: Record<string, string> = {
+const TITLE: Partial<Record<CustomerProviderCatalogItem['name'], string>> = {
 	stripe: 'Pay now by card',
 	cash: 'Pay at the shop',
 	bank_transfer: 'Bank transfer',
 	stripe_invoice: 'Pay by invoice',
 	no_payment_required: 'Nothing to pay',
 };
-const COPY: Record<string, string> = {
+const COPY: Partial<Record<CustomerProviderCatalogItem['name'], string>> = {
 	stripe: 'Card, Apple Pay or Google Pay.',
 	cash: 'Card or cash at the till, after your appointment.',
 	bank_transfer: 'You get our bank details on the next page and by email.',
@@ -33,7 +34,7 @@ const COPY: Record<string, string> = {
 export function PaymentSection() {
 	const { cart } = useCart();
 	const c = useCheckout();
-	const [chosen, setChosen] = useState<string | undefined>();
+	const [chosen, setChosen] = useState<CustomerProviderCatalogItem['name'] | undefined>();
 	const currency = cart?.paymentCurrencyCode ?? siteConfig.currency;
 	const method = chosen && c.providers.some((p) => p.name === chosen) ? chosen : c.providers[0]?.name;
 	const total = money(cart?.total ?? 0, currency);

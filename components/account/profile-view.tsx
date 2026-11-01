@@ -3,15 +3,11 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import useSWR from 'swr';
 import { useSession } from 'next-auth/react';
+import type { SelfServiceProfileResponse } from '@opencals/storefront-sdk';
 import { fetcher } from '@/lib/fetcher';
 import type { AccountConsent } from '@/lib/account-types';
 
-interface Profile {
-	email?: string;
-	firstName?: string | null;
-	lastName?: string | null;
-	phone?: string | null;
-}
+type Profile = Partial<Pick<SelfServiceProfileResponse, 'email' | 'firstName' | 'lastName' | 'phone'>>;
 
 const send = (url: string, body: unknown) => fetch(url, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).catch(() => null);
 

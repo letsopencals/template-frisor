@@ -13,6 +13,7 @@ import {
 	type ProductListItemResponse,
 	type ProductCollectionResponse,
 	type AddOnListItemResponse,
+	type LocationDetailResponse,
 } from '@opencals/storefront-sdk';
 import { publicPayload } from '@/lib/public-payload';
 import { siteConfig } from '@/lib/site-config';
@@ -105,7 +106,7 @@ export interface PublicLocation {
 	id: string;
 	slug: string;
 	title: string;
-	type: 'physical' | 'online' | 'delivery';
+	type: LocationDetailResponse['type'];
 	addressLines: string[];
 	city: string | null;
 	latitude: number | null;

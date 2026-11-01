@@ -1,5 +1,5 @@
 import '@/lib/opencals';
-import { SelfService } from '@opencals/storefront-sdk';
+import { SelfService, type UpdateCustomerProfile } from '@opencals/storefront-sdk';
 import { requireAuth } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { handleApiError } from '@/lib/api-error-handler';
@@ -25,7 +25,7 @@ export async function PUT(request: NextRequest) {
 	try {
 		const raw = (await request.json()) as Record<string, unknown>;
 		// Only the fields a patient may edit; email changes go through the clinic.
-		const body: { firstName?: string; lastName?: string; phone?: string } = {};
+		const body: UpdateCustomerProfile = {};
 		for (const k of ['firstName', 'lastName', 'phone'] as const) if (typeof raw[k] === 'string') body[k] = (raw[k] as string).trim();
 		const { data } = await SelfService.updateProfile({ body, headers: auth.headers, throwOnError: true });
 		return NextResponse.json(withoutSecrets(publicPayload(data)));

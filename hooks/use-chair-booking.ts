@@ -184,8 +184,8 @@ export function useChairBooking({ services, barbers, shops, initial }: { service
 			}
 			const hasShelf = chosen.map(([id]) => id).some((id) => isShelfSlug(addOns.availableAddOns.find((a) => a.id === id)?.slug));
 			const code = siteConfig.shelf.autoCode;
-			if (hasShelf && code && data?.cart && !(data.cart as { appliedDiscountCode?: string | null }).appliedDiscountCode) {
-				const r = await fetch('/api/cart/discount-code', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Cart-Id': (data.cart as { id: string }).id }, body: JSON.stringify({ code }) });
+			if (hasShelf && code && data?.cart && !data.cart.appliedDiscountCode) {
+				const r = await fetch('/api/cart/discount-code', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Cart-Id': data.cart.id }, body: JSON.stringify({ code }) });
 				if (r.ok) setCart(await r.json());
 			}
 			router.push('/checkout');

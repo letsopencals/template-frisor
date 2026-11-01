@@ -1,7 +1,6 @@
 'use client';
 
-import type { CheckoutResponse, PaymentInstructions } from '@opencals/storefront-sdk';
-import type { PendingReason, SittingStatus } from '@/lib/sittings';
+import type { AppointmentStatusType, CheckoutOrder, CheckoutResponse, PaymentInstructions, StorefrontAppointmentPendingReason } from '@opencals/storefront-sdk';
 
 /**
  * What checkout submit answered, kept in sessionStorage for the thank-you page: whether each booking is
@@ -14,11 +13,11 @@ export interface CheckoutOutcome {
 	orderName: string | null;
 	savedAt: number;
 	/** The payment method the customer picked (provider name). */
-	provider: string | null;
-	paymentStatus: string | null;
+	provider: PaymentInstructions['provider'] | null;
+	paymentStatus: CheckoutOrder['paymentStatus'] | null;
 	paymentDueAt: string | null;
 	instructions: PaymentInstructions | null;
-	appointments: Record<string, { status: SittingStatus; pendingReason: PendingReason | null }>;
+	appointments: Record<string, { status: AppointmentStatusType; pendingReason: StorefrontAppointmentPendingReason | null }>;
 }
 
 const KEY = 'frisor:outcome';

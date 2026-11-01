@@ -3,15 +3,26 @@
 import { useState, type ReactNode } from 'react';
 import { useCheckout } from '@/contexts/checkout-context';
 import { CodeSignIn } from '@/components/auth/code-sign-in';
+import { fieldA11y, PHONE_EXAMPLE, PHONE_HINT } from '@/lib/field-errors';
 
-function Field({ id, label, error, children }: { id: string; label: string; error?: string; children: ReactNode }) {
+/** A labelled input with an optional hint and its error underneath; the input takes `fieldA11y(id, error, !!hint)`. */
+function Field({ id, label, error, hint, children }: { id: string; label: string; error?: string; hint?: string; children: ReactNode }) {
 	return (
 		<div>
 			<label htmlFor={id} className="text-sm font-semibold">
 				{label}
 			</label>
 			<div className="mt-1.5">{children}</div>
-			{error ? <p className="mt-1 text-xs text-oxblood">{error}</p> : null}
+			{hint ? (
+				<p id={`${id}-hint`} className="mt-1 text-xs text-ink-3">
+					{hint}
+				</p>
+			) : null}
+			{error ? (
+				<p id={`${id}-error`} className="mt-1 text-xs text-oxblood">
+					{error}
+				</p>
+			) : null}
 		</div>
 	);
 }
@@ -68,19 +79,19 @@ export function ContactSection() {
 				</p>
 			)}
 			<Field id="email" label="Email" error={err('email')}>
-				<input id="email" type="email" required autoComplete="email" value={c.email} disabled={c.signedIn} onChange={(e) => c.setEmail(e.target.value)} className="field disabled:opacity-70" aria-invalid={err('email') ? true : undefined} />
+				<input id="email" type="email" required autoComplete="email" value={c.email} disabled={c.signedIn} onChange={(e) => c.setEmail(e.target.value)} className="field disabled:opacity-70" {...fieldA11y('email', err('email'))} />
 			</Field>
 			<div className="grid gap-4 sm:grid-cols-2">
 				<Field id="first" label={c.fields.firstNameRequired ? 'First name' : 'First name (optional)'} error={err('firstName')}>
-					<input id="first" autoComplete="given-name" required={c.fields.firstNameRequired} value={c.firstName} onChange={(e) => c.setFirstName(e.target.value)} className="field" />
+					<input id="first" autoComplete="given-name" required={c.fields.firstNameRequired} value={c.firstName} onChange={(e) => c.setFirstName(e.target.value)} className="field" {...fieldA11y('first', err('firstName'))} />
 				</Field>
 				<Field id="last" label="Last name" error={err('lastName')}>
-					<input id="last" autoComplete="family-name" value={c.lastName} onChange={(e) => c.setLastName(e.target.value)} className="field" />
+					<input id="last" autoComplete="family-name" value={c.lastName} onChange={(e) => c.setLastName(e.target.value)} className="field" {...fieldA11y('last', err('lastName'))} />
 				</Field>
 			</div>
 			{c.fields.phone !== 'hidden' ? (
-				<Field id="phone" label={c.fields.phone === 'required' ? 'Phone' : 'Phone (optional, for running-late calls)'} error={err('phone')}>
-					<input id="phone" type="tel" autoComplete="tel" required={c.fields.phone === 'required'} value={c.phone} onChange={(e) => c.setPhone(e.target.value)} className="field" />
+				<Field id="phone" label={c.fields.phone === 'required' ? 'Phone' : 'Phone (optional, for running-late calls)'} error={err('phone')} hint={PHONE_HINT}>
+					<input id="phone" type="tel" autoComplete="tel" required={c.fields.phone === 'required'} value={c.phone} onChange={(e) => c.setPhone(e.target.value)} placeholder={PHONE_EXAMPLE} className="field" {...fieldA11y('phone', err('phone'), true)} />
 				</Field>
 			) : null}
 			{c.fields.billingAddress !== 'hidden' ? <BillingFields /> : null}
@@ -118,23 +129,23 @@ function BillingFields() {
 		<div className="grid gap-4 sm:grid-cols-2">
 			{c.fields.companyName !== 'hidden' ? (
 				<Field id="company" label="Company (optional)" error={fe('companyName')}>
-					<input id="company" value={c.billing.companyName} onChange={set('companyName')} className="field" />
+					<input id="company" value={c.billing.companyName} onChange={set('companyName')} className="field" {...fieldA11y('company', fe('companyName'))} />
 				</Field>
 			) : null}
 			{c.fields.taxId !== 'hidden' ? (
 				<Field id="vat" label="VAT number (optional)" error={fe('taxRegistrationId')}>
-					<input id="vat" value={c.billing.taxRegistrationId} onChange={set('taxRegistrationId')} className="field" />
+					<input id="vat" value={c.billing.taxRegistrationId} onChange={set('taxRegistrationId')} className="field" {...fieldA11y('vat', fe('taxRegistrationId'))} />
 				</Field>
 			) : null}
 			<Field id="street" label="Street" error={fe('addressLine1')}>
-				<input id="street" required={required} autoComplete="address-line1" value={c.billing.addressLine1} onChange={set('addressLine1')} className="field" />
+				<input id="street" required={required} autoComplete="address-line1" value={c.billing.addressLine1} onChange={set('addressLine1')} className="field" {...fieldA11y('street', fe('addressLine1'))} />
 			</Field>
 			<div className="grid grid-cols-[7rem_1fr] gap-3">
 				<Field id="zip" label="Postcode" error={fe('postalCode')}>
-					<input id="zip" required={required} autoComplete="postal-code" value={c.billing.postalCode} onChange={set('postalCode')} className="field" />
+					<input id="zip" required={required} autoComplete="postal-code" value={c.billing.postalCode} onChange={set('postalCode')} className="field" {...fieldA11y('zip', fe('postalCode'))} />
 				</Field>
 				<Field id="city" label="City" error={fe('city')}>
-					<input id="city" required={required} autoComplete="address-level2" value={c.billing.city} onChange={set('city')} className="field" />
+					<input id="city" required={required} autoComplete="address-level2" value={c.billing.city} onChange={set('city')} className="field" {...fieldA11y('city', fe('city'))} />
 				</Field>
 			</div>
 		</div>

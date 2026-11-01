@@ -24,6 +24,7 @@ import { useCart } from '@/contexts/cart-context';
 import { useSettings } from '@/contexts/settings-context';
 import { usePaymentProviders } from '@/hooks/use-payment-providers';
 import { saveOutcome } from '@/lib/checkout-outcome';
+import { mapFieldErrors, missingCountryCode, PHONE_HINT, withoutField, type ApiFieldErrors, type FieldErrors } from '@/lib/field-errors';
 
 /**
  * The docket's state: who's sitting (contact details), then how they settle up. Notes for the
@@ -92,6 +93,8 @@ class CheckoutError extends Error {
 		message: string,
 		readonly code?: CheckoutErrorCode,
 		readonly orderId?: string,
+		/** Errors placed under the contact fields (the customer goes back to that step to fix them). */
+		readonly fields: FieldErrors = {},
 	) {
 		super(message);
 	}
@@ -120,8 +123,28 @@ export function checkoutFieldsOf(cs: CheckoutSetting | null | undefined): Checko
 	};
 }
 
-/** Backend field paths (e.g. "billingAddress.city") → message. */
-export type FieldErrors = Record<string, string>;
+/** Contact field (`phone`, `billingAddress.city`, …) → the message under it. */
+export type { FieldErrors };
+
+/** The contact step's fields, as named in `fieldErrors`. API paths are matched on their end (`customer.phone` → `phone`). */
+const CONTACT_FIELDS = [
+	'email',
+	'firstName',
+	'lastName',
+	'phone',
+	'billingAddress.companyName',
+	'billingAddress.taxRegistrationId',
+	'billingAddress.addressLine1',
+	'billingAddress.postalCode',
+	'billingAddress.city',
+] as const;
+/** The billing address reuses the contact name, email and phone, so their errors show on those fields. */
+const CONTACT_ALIAS: Record<string, string> = {
+	'billingAddress.firstName': 'firstName',
+	'billingAddress.lastName': 'lastName',
+	'billingAddress.email': 'email',
+	'billingAddress.phone': 'phone',
+};
 
 interface CheckoutContextValue {
 	step: CheckoutStep;
@@ -178,9 +201,10 @@ function trimmed(v: string): string | undefined {
 }
 
 /** What `/api/checkout/*` answers on failure (see `lib/api-error-handler.ts`). */
-type CheckoutErrorJson = { error?: string; errors?: FieldErrors } & Partial<Pick<CheckoutErrorResponse, 'code' | 'orderId'>>;
+type CheckoutErrorJson = { error?: string; fieldErrors?: ApiFieldErrors } & Partial<Pick<CheckoutErrorResponse, 'code' | 'orderId'>>;
 
 interface ReadError {
+	/** For the banner; empty when every problem is shown under its field. */
 	message: string;
 	fields: FieldErrors;
 	code?: CheckoutErrorCode;
@@ -190,8 +214,11 @@ interface ReadError {
 async function readError(res: Response, fallback: string): Promise<ReadError> {
 	try {
 		const data = (await res.json()) as CheckoutErrorJson;
-		const message = (data.code && CODE_MESSAGE[data.code]) || data.error || fallback;
-		return { message, fields: data.errors ?? {}, code: data.code, orderId: data.orderId };
+		const { fields, unmapped } = mapFieldErrors(data.fieldErrors, CONTACT_FIELDS, CONTACT_ALIAS);
+		const message = Object.keys(fields).length
+			? unmapped.join(' ')
+			: (data.code && CODE_MESSAGE[data.code]) || data.error || fallback;
+		return { message, fields, code: data.code, orderId: data.orderId };
 	} catch {
 		return { message: fallback, fields: {} };
 	}
@@ -211,10 +238,10 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
 	const [checkoutComplete, setCheckoutComplete] = useState(false);
 	const [holdLost, setHoldLost] = useState(false);
 
-	const [email, setEmail] = useState('');
-	const [firstName, setFirstName] = useState('');
-	const [lastName, setLastName] = useState('');
-	const [phone, setPhone] = useState('');
+	const [email, setEmailState] = useState('');
+	const [firstName, setFirstNameState] = useState('');
+	const [lastName, setLastNameState] = useState('');
+	const [phone, setPhoneState] = useState('');
 	const [billing, setBilling] = useState<BillingDraft>(EMPTY_BILLING);
 	const [billingOpenState, setBillingOpen] = useState(false);
 	const [consent, setConsentState] = useState<ConsentDraft>(EMPTY_CONSENT);
@@ -228,9 +255,9 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
 	useEffect(() => {
 		if (session?.customer && !prefilled) {
 			if (session.customer.id) setCustomerId(session.customer.id);
-			if (session.customer.email) setEmail(session.customer.email);
-			if (session.customer.firstName) setFirstName(session.customer.firstName);
-			if (session.customer.lastName) setLastName(session.customer.lastName);
+			if (session.customer.email) setEmailState(session.customer.email);
+			if (session.customer.firstName) setFirstNameState(session.customer.firstName);
+			if (session.customer.lastName) setLastNameState(session.customer.lastName);
 			setPrefilled(true);
 		}
 	}, [session, prefilled]);
@@ -250,7 +277,43 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
 		}
 	}, [isLoaded, cartId, checkoutComplete, router]);
 
-	const updateBilling = useCallback((patch: Partial<BillingDraft>) => setBilling((b) => ({ ...b, ...patch })), []);
+	// Editing a field clears its error.
+	const clearField = useCallback((...names: string[]) => setFieldErrors((e) => withoutField(e, ...names)), []);
+	const setEmail = useCallback(
+		(v: string) => {
+			setEmailState(v);
+			clearField('email');
+		},
+		[clearField],
+	);
+	const setFirstName = useCallback(
+		(v: string) => {
+			setFirstNameState(v);
+			clearField('firstName');
+		},
+		[clearField],
+	);
+	const setLastName = useCallback(
+		(v: string) => {
+			setLastNameState(v);
+			clearField('lastName');
+		},
+		[clearField],
+	);
+	const setPhone = useCallback(
+		(v: string) => {
+			setPhoneState(v);
+			clearField('phone');
+		},
+		[clearField],
+	);
+	const updateBilling = useCallback(
+		(patch: Partial<BillingDraft>) => {
+			setBilling((b) => ({ ...b, ...patch }));
+			clearField(...Object.keys(patch).map((k) => `billingAddress.${k}`));
+		},
+		[clearField],
+	);
 	const setConsent = useCallback(
 		(channel: ConsentChannel, value: boolean) => setConsentState((c) => ({ ...c, [channel]: value })),
 		[],
@@ -302,6 +365,11 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
 			e.preventDefault();
 			setError(null);
 			setFieldErrors({});
+			// The API checks the number; this only catches a local format (no country code) before the round trip.
+			if (fields.phone !== 'hidden' && missingCountryCode(phone)) {
+				setFieldErrors({ phone: PHONE_HINT });
+				return;
+			}
 			setSubmitting(true);
 
 			try {
@@ -319,7 +387,8 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
 				if (!res.ok) {
 					const { message, fields: errs } = await readError(res, 'We couldn’t save your details. Please check them and try again.');
 					setFieldErrors(errs);
-					throw new Error(message);
+					setError(message || null);
+					return;
 				}
 
 				const saved = (await res.json().catch(() => ({}))) as { customerId?: string };
@@ -332,7 +401,7 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
 				setSubmitting(false);
 			}
 		},
-		[sessionCustomerId, contactFields, email, cartHeaders],
+		[sessionCustomerId, contactFields, email, cartHeaders, fields.phone, phone],
 	);
 
 	/** POST a checkout step; CHECKOUT_IN_PROGRESS waits and retries, other failures throw a CheckoutError. */
@@ -346,7 +415,7 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
 					await wait(IN_PROGRESS_WAIT_MS);
 					continue;
 				}
-				throw new CheckoutError(e.message, e.code, e.orderId);
+				throw new CheckoutError(e.message, e.code, e.orderId, e.fields);
 			}
 		},
 		[cartHeaders],
@@ -354,7 +423,14 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
 
 	const fail = useCallback((err: unknown) => {
 		if (err instanceof CheckoutError && err.code === 'CART_EXPIRED') setHoldLost(true);
-		setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+		if (err instanceof CheckoutError && Object.keys(err.fields).length) {
+			// A contact detail was rejected: back to the details, with the message under the field.
+			setFieldErrors(err.fields);
+			setStep('customer');
+			setError(err.message || null);
+		} else {
+			setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+		}
 		setSubmitting(false);
 	}, []);
 
@@ -526,6 +602,10 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
 			consent,
 			sessionCustomerId,
 			customerId,
+			setEmail,
+			setFirstName,
+			setLastName,
+			setPhone,
 			updateBilling,
 			setConsent,
 			providers,

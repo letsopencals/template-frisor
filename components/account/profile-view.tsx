@@ -6,6 +6,19 @@ import { useSession } from 'next-auth/react';
 import type { SelfServiceProfileResponse } from '@opencals/storefront-sdk';
 import { fetcher } from '@/lib/fetcher';
 import type { AccountConsent } from '@/lib/account-types';
+import { fieldA11y, mapFieldErrors, missingCountryCode, PHONE_EXAMPLE, PHONE_HINT, withoutField, type ApiFieldErrors, type FieldErrors } from '@/lib/field-errors';
+
+const PROFILE_FIELDS = ['firstName', 'lastName', 'phone'] as const;
+type ProfileField = (typeof PROFILE_FIELDS)[number];
+const PROFILE_INPUT_ID: Record<ProfileField, string> = { firstName: 'p-firstName', lastName: 'p-lastName', phone: 'p-phone' };
+
+function FieldError({ id, error }: { id: string; error?: string }) {
+	return error ? (
+		<p id={`${id}-error`} className="mt-1 text-xs text-oxblood">
+			{error}
+		</p>
+	) : null;
+}
 
 type Profile = Partial<Pick<SelfServiceProfileResponse, 'email' | 'firstName' | 'lastName' | 'phone'>>;
 
@@ -24,15 +37,30 @@ function DetailsForm() {
 	const { update } = useSession();
 	const [f, setF] = useState({ firstName: '', lastName: '', phone: '' });
 	const [msg, setMsg] = useState<string | null>(null);
+	const [errors, setErrors] = useState<FieldErrors>({});
 	const [busy, setBusy] = useState(false);
 	useEffect(() => {
 		if (data) setF({ firstName: data.firstName ?? '', lastName: data.lastName ?? '', phone: data.phone ?? '' });
 	}, [data]);
+	const edit = (k: ProfileField, v: string) => {
+		setF({ ...f, [k]: v });
+		setErrors((e) => withoutField(e, k));
+	};
 	const save = async (e: FormEvent) => {
 		e.preventDefault();
+		setMsg(null);
+		// The API checks the number; this only catches a local format (no country code) before the round trip.
+		if (missingCountryCode(f.phone)) return setErrors({ phone: PHONE_HINT });
+		setErrors({});
 		setBusy(true);
 		const res = await send('/api/account/profile', f);
 		setBusy(false);
+		if (res && !res.ok) {
+			const body = (await res.json().catch(() => null)) as { fieldErrors?: ApiFieldErrors } | null;
+			const { fields, unmapped } = mapFieldErrors(body?.fieldErrors, PROFILE_FIELDS);
+			setErrors(fields);
+			if (Object.keys(fields).length) return setMsg(unmapped.length ? unmapped.join(' ') : null);
+		}
 		setMsg(res?.ok ? 'Saved.' : 'We couldn’t save that. Please try again.');
 		if (res?.ok) {
 			void mutate();
@@ -55,7 +83,8 @@ function DetailsForm() {
 						<label className="text-sm font-semibold" htmlFor={`p-${k}`}>
 							{k === 'firstName' ? 'First name' : 'Last name'}
 						</label>
-						<input id={`p-${k}`} value={f[k]} onChange={(e) => setF({ ...f, [k]: e.target.value })} className="field mt-1.5" autoComplete={k === 'firstName' ? 'given-name' : 'family-name'} />
+						<input id={`p-${k}`} value={f[k]} onChange={(e) => edit(k, e.target.value)} className="field mt-1.5" autoComplete={k === 'firstName' ? 'given-name' : 'family-name'} {...fieldA11y(PROFILE_INPUT_ID[k], errors[k])} />
+						<FieldError id={PROFILE_INPUT_ID[k]} error={errors[k]} />
 					</div>
 				))}
 			</div>
@@ -63,7 +92,11 @@ function DetailsForm() {
 				<label className="text-sm font-semibold" htmlFor="p-phone">
 					Phone
 				</label>
-				<input id="p-phone" type="tel" value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} className="field mt-1.5" autoComplete="tel" />
+				<input id="p-phone" type="tel" value={f.phone} onChange={(e) => edit('phone', e.target.value)} placeholder={PHONE_EXAMPLE} className="field mt-1.5" autoComplete="tel" {...fieldA11y('p-phone', errors.phone, true)} />
+				<p id="p-phone-hint" className="mt-1 text-xs text-ink-3">
+					{PHONE_HINT}
+				</p>
+				<FieldError id="p-phone" error={errors.phone} />
 			</div>
 			<div className="flex items-center gap-4">
 				<button type="submit" disabled={busy} className="btn btn-primary">
